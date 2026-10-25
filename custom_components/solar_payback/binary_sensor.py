@@ -13,7 +13,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import SolarPaybackConfigEntry
-from .calc import month_key
+from .calc import missing_reward_month, month_key
 from .entity import SolarPaybackEntity
 
 
@@ -31,19 +31,14 @@ class RewardMissingSensor(SolarPaybackEntity, BinarySensorEntity):
 
     _attr_device_class = BinarySensorDeviceClass.PROBLEM
 
-    def _previous_month(self) -> str:
-        today = self.coordinator.data.today
-        return month_key(today.replace(day=1) - timedelta(days=1))
-
     @property
     def is_on(self) -> bool:
         """True if last month's reward is missing."""
-        prev = self._previous_month()
-        if prev < month_key(self.coordinator.data.start_date):
-            return False
-        return prev not in self.coordinator.rewards
+        r = self.coordinator.data
+        return missing_reward_month(r.today, r.start_date, self.coordinator.rewards) is not None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
         """Which month it is about."""
-        return {"month": self._previous_month()}
+        today = self.coordinator.data.today
+        return {"month": month_key(today.replace(day=1) - timedelta(days=1))}
