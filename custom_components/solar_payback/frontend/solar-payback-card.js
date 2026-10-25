@@ -69,6 +69,14 @@ class SolarPaybackCard extends HTMLElement {
     const s = this._hass.states[this._c.entity];
     const cur = (s && s.attributes.unit_of_measurement) || '';
     const lang = this._hass.locale?.language || this._hass.language || 'en';
+    // ISO currency codes (SEK, EUR) are shown the local way, e.g. "7 281 kr" or "€7,281".
+    if (/^[A-Z]{3}$/.test(cur)) {
+      try {
+        return Number(v).toLocaleString(lang, {
+          style: 'currency', currency: cur, minimumFractionDigits: 0, maximumFractionDigits: digits,
+        });
+      } catch (e) { /* unknown code, fall through */ }
+    }
     return `${Number(v).toLocaleString(lang, { maximumFractionDigits: digits })} ${cur}`.trim();
   }
 
