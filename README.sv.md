@@ -2,93 +2,51 @@
 
 **När har solcellerna och batteriet betalat sig?**
 
-Solar Payback är en integration till Home Assistant som räknar ut hur mycket solcellerna och husbatteriet har sparat hittills, hur stor del av köpesumman som är återbetald och när hela anläggningen har betalat sig. Med följer ett kort som visar allt som en graf.
+Solar Payback räknar ut hur mycket solcellerna och husbatteriet har sparat, hur stor del av köpesumman som är återbetald och när allt har betalat sig. Ett kort med graf följer med.
 
 [English instructions](README.md)
 
 ![Solar Payback-kortet](images/card.png)
 
-Det fungerar med alla märken av växelriktare och batterier och alla elbolag, så länge Home Assistant har energistatistiken. Har du Tibber hittar den allt själv.
+## Kom igång
 
-## Innehåll
+Det tar ungefär fem minuter. Du behöver [HACS](https://hacs.xyz) och en växelriktare eller ett batteri som redan syns i Home Assistant.
 
-- [Så fungerar det](#så-fungerar-det)
-- [Det här behövs](#det-här-behövs)
-- [Hur långt bak går det?](#hur-långt-bak-går-det)
-- [Steg 1: Installera](#steg-1-installera)
-- [Steg 2: Kontrollera din eldata](#steg-2-kontrollera-din-eldata)
-- [Steg 3: Hitta husets förbrukning](#steg-3-hitta-husets-förbrukning-för-din-växelriktare-eller-ditt-batteri)
-- [Steg 4: Lägg till integrationen](#steg-4-lägg-till-integrationen)
-- [Steg 5: Ange månadsersättningen](#steg-5-ange-månadsersättningen-valfritt)
-- [Steg 6: Lägg till kortet](#steg-6-lägg-till-kortet)
-- [Sensorer](#sensorer)
-- [Frågor och begränsningar](#frågor-och-begränsningar)
+**1. Installera**
 
-## Så fungerar det
+[![Öppna i HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=TimmyUll&repository=ha-solar-payback&category=integration)
 
-En gång i timmen läser integrationen Home Assistants långtidsstatistik från startdatumet och värderar varje timme:
+Tryck på knappen, sedan **Download**, och starta om Home Assistant.
 
-| Del | Så värderas den |
-|---|---|
-| **Sol och batteri i huset** | El som huset använde men inte köpte från nätet (den kom från solcellerna eller batteriet). Den är värd vad den hade kostat: timpriset plus nätavgiften du slipper. |
-| **Såld el** | Det elbolaget betalade för elen du sålde, plus eventuell ersättning från nätbolaget per såld kWh. |
-| **Månadsersättning** | Pengar en tjänst betalar dig varje månad, t.ex. Tibbers Grid Rewards för att batteriet hjälper elnätet. Du anger den en gång i månaden. |
+**2. Lägg till integrationen**
 
-Allt summeras per dag. Prognosen utgår från att du fortsätter spara i samma takt som de senaste 60 dagarna (antalet dagar går att ändra).
+[![Lägg till Solar Payback](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=solar_payback)
 
-Kalkylen använder *husets förbrukning − köpt el*, så den räknar både solel som används direkt och el som gått via batteriet. Laddar du batteriet från nätet på natten och använder det på kvällen blir det också rätt: den köpta elen dras av till priset den timme den köptes.
+Fyll i frågorna. Det enda du behöver ha till hands är:
 
-## Det här behövs
+- **Vad anläggningen kostade** (efter grönt avdrag) och **när den startade**.
+- **Husets förbrukning**: välj sensorn från din växelriktare. Den heter ofta något med *load* eller *consumption*. [Hjälp att hitta den](#hitta-husets-förbrukning).
+- **Nätavgiften per kWh** från nätbolagets faktura. Vet du inte, skriv 0 nu och ändra senare.
 
-Allt måste vara sensorer eller statistik med **långtidsstatistik** i Home Assistant (allt som syns i Energi-panelen har det).
+Har du Tibber hittas allt annat automatiskt. Annars väljer du köpt och såld el från Energi-panelen ([så här](#utan-tibber)).
 
-| Data | Krävs? | Vanlig källa |
-|---|---|---|
-| El köpt från nätet (kWh) | Ja | Tibber, elmätaren (HAN-porten) eller växelriktarens nätmätare |
-| Kostnad för köpt el | En av dessa två | Tibber, eller kostnadssensorn som Energi-panelen skapar |
-| Elpris per kWh | | Nord Pool, Tibbers prissensor, ENTSO-e |
-| El såld till nätet (kWh) | Om du säljer | Tibber, elmätaren eller växelriktaren |
-| Ersättning för såld el | Nej | Tibber, eller ersättningssensorn som Energi-panelen skapar. Saknas den värderas såld el till elpriset. |
-| **Husets förbrukning (kWh)** | Ja | Växelriktaren eller batterisystemet. Se [Steg 3](#steg-3-hitta-husets-förbrukning-för-din-växelriktare-eller-ditt-batteri). |
-| Nätavgift per köpt kWh | Rekommenderas | Nätbolagets faktura (anges som en siffra) |
-| Månadsersättning | Nej | Elbolagets app eller faktura (anges varje månad) |
+**3. Lägg till kortet**
 
-## Hur långt bak går det?
+Redigera en instrumentpanel, tryck **Lägg till kort** och sök efter **Solar Payback**.
 
-Home Assistant sparar långtidsstatistik för alltid, så inget försvinner när det väl finns där. Hur långt bak du kommer beror på när varje källa började spelas in:
+**4. Får du Grid Rewards eller annan månadsersättning?**
 
-- **Tibber** fyller på historiken bakåt i tiden själv, ofta långt innan du lade till Tibber i Home Assistant. Köpt och såld el och kostnad brukar vara kompletta från första dagen.
-- **Växelriktarens förbrukning** finns bara från dagen du lade till växelriktarens integration i Home Assistant. Den går inte att hämta i efterhand.
-- **Dagar innan husets förbrukning fanns** uppskattas från snittet av de första 30 dagarna med data. De månaderna markeras med * på kortet. Ju längre anläggningen har gått, desto mindre spelar uppskattningen roll.
-- **Månadsersättningar** finns inte i något API vi känner till. Du anger dem för hand från appen eller fakturorna, och du kan ange gamla månader också, så långt bak du har siffrorna. Månader du hoppar över uppskattas från den senaste månaden du angett.
+Slå på det i installationen. Tryck sedan **+ Lägg till** i kortet en gång i månaden och skriv in beloppet. Kortet påminner dig när en månad saknas.
 
-Du behöver inte ge tillgång till gamla fakturor. Det enda du slår upp för hand är månadsersättningen.
+Klart! Allt räknas lokalt i din Home Assistant och inget skickas någonstans.
 
-## Steg 1: Installera
+## Mer hjälp
 
-Du behöver ha [HACS](https://hacs.xyz) installerat.
+Allt nedan är valfritt. Öppna det du behöver.
 
-1. Öppna **HACS** i Home Assistant.
-2. Tryck på de tre prickarna uppe till höger och välj **Custom repositories**.
-3. Klistra in adressen till det här repot, välj typ **Integration** och tryck **Add**.
-4. Sök efter **Solar Payback** i HACS, öppna den och tryck **Download**.
-5. Starta om Home Assistant (**Inställningar → System → Starta om**).
-
-Kortet följer med och laddas automatiskt. Du behöver inte installera det separat.
-
-## Steg 2: Kontrollera din eldata
-
-### Om du har Tibber
-
-Inget att göra. När du lägger till Solar Payback hittar den Tibbers statistik för köpt el, kostnad, såld el och ersättning själv.
-
-### Andra elbolag
-
-1. Gå till **Inställningar → Instrumentpaneler → Energi** och kontrollera att **Nätförbrukning** (och **Retur till nätet** om du säljer) är inställda.
-2. Välj där hur kostnaden räknas: **Använd en entitet med aktuellt pris** (t.ex. Nord Pool) eller ett fast pris. Home Assistant skapar då statistik för kostnaden för köpt el och ersättningen för såld el. Det är dem du väljer i steg 4.
-3. Vill du inte använda Energi-panelen kan du installera en prisintegration som **Nord Pool** (inbyggd) och välja dess prissensor i steg 4.
-
-## Steg 3: Hitta husets förbrukning för din växelriktare eller ditt batteri
+<a id="hitta-husets-förbrukning"></a>
+<details>
+<summary><b>Hitta husets förbrukning (per märke)</b></summary>
 
 Husets förbrukning är **allt huset använder**, oavsett om det kommer från solcellerna, batteriet eller nätet. Det måste vara en energisensor i **kWh som räknar uppåt** (inte effekt i W).
 
@@ -148,17 +106,30 @@ Skapa den som en mallsensor (**Hjälpare → Skapa hjälpare → Mall → Mallse
 
 Använd totaler sedan start (inte dagssummor) i formeln, så att resultatet aldrig sjunker vid midnatt.
 
-**Kom ihåg:** en sensor du skapar nu har bara statistik från i dag. Dagarna innan uppskattas, se [Hur långt bak går det?](#hur-långt-bak-går-det)
+**Kom ihåg:** en sensor du skapar nu har bara statistik från i dag. Dagarna innan uppskattas, se *Hur långt bak går det?* nedan.
 
-## Steg 4: Lägg till integrationen
+</details>
+
+<a id="utan-tibber"></a>
+<details>
+<summary><b>Utan Tibber</b></summary>
+
+1. Gå till **Inställningar → Instrumentpaneler → Energi** och kontrollera att **Nätförbrukning** (och **Retur till nätet** om du säljer) är inställda.
+2. Välj där hur kostnaden räknas: **Använd en entitet med aktuellt pris** (t.ex. Nord Pool) eller ett fast pris. Home Assistant skapar då statistik för kostnaden för köpt el och ersättningen för såld el. Det är dem du väljer i installationen.
+3. Vill du inte använda Energi-panelen kan du installera en prisintegration som **Nord Pool** (inbyggd) och välja dess prissensor i installationen.
+
+</details>
+
+<details>
+<summary><b>Alla frågor i installationen</b></summary>
 
 1. Gå till **Inställningar → Enheter och tjänster → Lägg till integration** och sök efter **Solar Payback**.
 2. **Din solcellsanläggning**
    - *Namn*: vad du vill, t.ex. *Sol*.
    - *Köpesumma*: det du faktiskt betalade, efter grönt avdrag eller bidrag.
    - *Startdatum*: dagen anläggningen startade, t.ex. första dagen du sålde el.
-3. **Köpt och såld el**: välj **Tibber** om det erbjuds, annars statistiken från steg 2.
-4. **Husets förbrukning**: välj sensorn från steg 3. Med Tibber kan du också välja en elprissensor som reserv för timmar där Tibber saknar kostnad.
+3. **Köpt och såld el**: välj **Tibber** om det erbjuds, annars statistiken under *Utan Tibber*.
+4. **Husets förbrukning**: välj sensorn under *Hitta husets förbrukning*. Med Tibber kan du också välja en elprissensor som reserv för timmar där Tibber saknar kostnad.
 5. **Nätavgifter och inställningar**
    - *Nätavgift per köpt kWh*: titta på nätbolagets faktura. Lägg ihop elöverföring och energiskatt per kWh, och räkna med moms. Exempel: överföring 25 öre + energiskatt 40 öre exkl. moms = 0,65 × 1,25 = **0,8125** kr per kWh. Det är vad du slipper betala för varje kWh du inte köper. Den fasta abonnemangsavgiften ändras inte och räknas inte med.
    - *Nätersättning per såld kWh*: det nätbolaget betalar dig per såld kWh (ofta några öre, utan moms). 0 om ingen.
@@ -172,9 +143,12 @@ Använd totaler sedan start (inte dagssummor) i formeln, så att resultatet aldr
 
 Allt utom datakällan kan ändras senare under **Inställningar → Enheter och tjänster → Solar Payback → Konfigurera**.
 
-## Steg 5: Ange månadsersättningen (valfritt)
+</details>
 
-Hoppa över det här steget om du inte får någon månadsersättning. Annars slår du på *Jag får en månadsersättning* i steg 4 (eller senare under **Konfigurera**).
+<details>
+<summary><b>Månadsersättning: fler sätt och påminnelse</b></summary>
+
+Slå först på *Jag får en månadsersättning* i installationen (eller senare under **Konfigurera**).
 
 Får du betalt för att batteriet hjälper elnätet (t.ex. Tibbers Grid Rewards, eller ersättning för stödtjänster/FCR från en annan aktör), ange beloppet en gång i månaden:
 
@@ -217,7 +191,10 @@ actions:
 
 För att ta bort en månad, använd **Solar Payback: Ta bort månadsersättning**.
 
-## Steg 6: Lägg till kortet
+</details>
+
+<details>
+<summary><b>Kortets inställningar</b></summary>
 
 1. Öppna en instrumentpanel, tryck **Redigera** och **Lägg till kort**.
 2. Sök efter **Solar Payback**.
@@ -238,7 +215,56 @@ entity: sensor.sol_sparat_hittills
 
 Kortet följer ditt tema och visas på svenska eller engelska beroende på ditt språk.
 
-## Sensorer
+</details>
+
+<details>
+<summary><b>Så räknas det</b></summary>
+
+En gång i timmen läser integrationen Home Assistants långtidsstatistik från startdatumet och värderar varje timme:
+
+| Del | Så värderas den |
+|---|---|
+| **Sol och batteri i huset** | El som huset använde men inte köpte från nätet (den kom från solcellerna eller batteriet). Den är värd vad den hade kostat: timpriset plus nätavgiften du slipper. |
+| **Såld el** | Det elbolaget betalade för elen du sålde, plus eventuell ersättning från nätbolaget per såld kWh. |
+| **Månadsersättning** | Pengar en tjänst betalar dig varje månad, t.ex. Tibbers Grid Rewards för att batteriet hjälper elnätet. Du anger den en gång i månaden. |
+
+Allt summeras per dag. Prognosen utgår från att du fortsätter spara i samma takt som de senaste 60 dagarna (antalet dagar går att ändra).
+
+Kalkylen använder *husets förbrukning − köpt el*, så den räknar både solel som används direkt och el som gått via batteriet. Laddar du batteriet från nätet på natten och använder det på kvällen blir det också rätt: den köpta elen dras av till priset den timme den köptes.
+
+### Det här används
+
+Allt måste vara sensorer eller statistik med **långtidsstatistik** i Home Assistant (allt som syns i Energi-panelen har det).
+
+| Data | Krävs? | Vanlig källa |
+|---|---|---|
+| El köpt från nätet (kWh) | Ja | Tibber, elmätaren (HAN-porten) eller växelriktarens nätmätare |
+| Kostnad för köpt el | En av dessa två | Tibber, eller kostnadssensorn som Energi-panelen skapar |
+| Elpris per kWh | | Nord Pool, Tibbers prissensor, ENTSO-e |
+| El såld till nätet (kWh) | Om du säljer | Tibber, elmätaren eller växelriktaren |
+| Ersättning för såld el | Nej | Tibber, eller ersättningssensorn som Energi-panelen skapar. Saknas den värderas såld el till elpriset. |
+| **Husets förbrukning (kWh)** | Ja | Växelriktaren eller batterisystemet. Se [Hitta husets förbrukning](#hitta-husets-förbrukning). |
+| Nätavgift per köpt kWh | Rekommenderas | Nätbolagets faktura (anges som en siffra) |
+| Månadsersättning | Nej | Elbolagets app eller faktura (anges varje månad) |
+
+</details>
+
+<details>
+<summary><b>Hur långt bak går det?</b></summary>
+
+Home Assistant sparar långtidsstatistik för alltid, så inget försvinner när det väl finns där. Hur långt bak du kommer beror på när varje källa började spelas in:
+
+- **Tibber** fyller på historiken bakåt i tiden själv, ofta långt innan du lade till Tibber i Home Assistant. Köpt och såld el och kostnad brukar vara kompletta från första dagen.
+- **Växelriktarens förbrukning** finns bara från dagen du lade till växelriktarens integration i Home Assistant. Den går inte att hämta i efterhand.
+- **Dagar innan husets förbrukning fanns** uppskattas från snittet av de första 30 dagarna med data. De månaderna markeras med * på kortet. Ju längre anläggningen har gått, desto mindre spelar uppskattningen roll.
+- **Månadsersättningar** finns inte i något API vi känner till. Du anger dem för hand från appen eller fakturorna, och du kan ange gamla månader också, så långt bak du har siffrorna. Månader du hoppar över uppskattas från den senaste månaden du angett.
+
+Du behöver inte ge tillgång till gamla fakturor. Det enda du slår upp för hand är månadsersättningen.
+
+</details>
+
+<details>
+<summary><b>Sensorer</b></summary>
 
 | Sensor | Beskrivning |
 |---|---|
@@ -252,13 +278,33 @@ Kortet följer ditt tema och visas på svenska eller engelska beroende på ditt 
 | Månadsersättning totalt | Summan av alla månadsersättningar (bara med månadsersättning påslagen) |
 | Månadsersättning saknas | På när förra månaden saknar ersättning (bara med månadsersättning påslagen) |
 
-## Frågor och begränsningar
+</details>
+
+<details>
+<summary><b>Frågor och begränsningar</b></summary>
 
 - **Prognosen känner inte till årstider.** På sommaren ser det snabbare ut, på vintern långsammare. En längre prognosperiod (t.ex. 365 dagar när du har ett års data) jämnar ut det.
 - **Skattereduktion och andra bidrag** per såld kWh kan räknas in i nätersättningen om de gäller dig.
 - **Fasta avgifter** (abonnemang, månadsavgifter) räknas inte med eftersom de inte ändras av anläggningen.
 - **Flera anläggningar eller hus?** Lägg till integrationen en gång per anläggning.
 - **Integritet:** allt räknas lokalt i din Home Assistant. Inget skickas någonstans.
+
+</details>
+
+<details>
+<summary><b>Installera utan knappen</b></summary>
+
+Du behöver ha [HACS](https://hacs.xyz) installerat.
+
+1. Öppna **HACS** i Home Assistant.
+2. Tryck på de tre prickarna uppe till höger och välj **Custom repositories**.
+3. Klistra in adressen till det här repot, välj typ **Integration** och tryck **Add**.
+4. Sök efter **Solar Payback** i HACS, öppna den och tryck **Download**.
+5. Starta om Home Assistant (**Inställningar → System → Starta om**).
+
+Kortet följer med och laddas automatiskt. Du behöver inte installera det separat.
+
+</details>
 
 ## Licens
 
