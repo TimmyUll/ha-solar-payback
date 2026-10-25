@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Din solcellsanläggning",
+        "description": "Vad anläggningen kostade och när den började producera. Ange det du faktiskt betalade, efter t.ex. grönt avdrag.",
+        "data": {
+          "name": "Namn",
+          "purchase_price": "Köpesumma",
+          "start_date": "Startdatum"
+        },
+        "data_description": {
+          "purchase_price": "I Home Assistants valuta.",
+          "start_date": "Dagen anläggningen startade, t.ex. första dagen du sålde el."
+        }
+      },
+      "source": {
+        "title": "Köpt och såld el",
+        "description": "Statistik från Tibber hittades. Använd den, eller välj egen statistik.",
+        "data": { "source": "Datakälla" }
+      },
+      "tibber": {
+        "title": "Tibber-hem",
+        "data": { "tibber_home": "Hem" }
+      },
+      "custom": {
+        "title": "Köpt och såld el",
+        "description": "Välj långtidsstatistik (energi i kWh, pengar i din valuta). Bara köpt el krävs. Utan kostnad för köpt el behövs en elprissensor.",
+        "data": {
+          "import_kwh": "El köpt från nätet (kWh)",
+          "import_cost": "Kostnad för köpt el",
+          "export_kwh": "El såld till nätet (kWh)",
+          "export_revenue": "Ersättning för såld el",
+          "price": "Elprissensor (per kWh)"
+        },
+        "data_description": {
+          "import_cost": "T.ex. kostnadssensorn som Energi-panelen skapar, eller elbolagets statistik.",
+          "export_revenue": "Saknas den värderas såld el till elpriset.",
+          "price": "T.ex. Nord Pool. Används när kostnaden saknas en timme."
+        }
+      },
+      "consumption": {
+        "title": "Husets förbrukning",
+        "description": "Välj statistiken för allt huset förbrukar (kWh), oftast från växelriktaren. README förklarar hur du hittar eller skapar den för olika märken.",
+        "data": {
+          "consumption": "Husets förbrukning (kWh)",
+          "price": "Elprissensor (valfri reserv)"
+        }
+      },
+      "fees": {
+        "title": "Nätavgifter och inställningar",
+        "description": "Belopp per kWh i din valuta. Titta på nätbolagets faktura.",
+        "data": {
+          "grid_fee_import": "Nätavgift per köpt kWh",
+          "grid_fee_export": "Nätersättning per såld kWh",
+          "supplier_markup": "Elbolagets påslag per kWh (exkl. moms)",
+          "vat_factor": "Momsfaktor",
+          "forecast_days": "Prognos baserad på senaste dagarna",
+          "reward_label": "Namn på månadsersättningen",
+          "rewards_include_vat": "Månadsersättningen anges inklusive moms"
+        },
+        "data_description": {
+          "grid_fee_import": "Elöverföring plus energiskatt, inklusive moms. Det du slipper betala för varje kWh du inte köper.",
+          "grid_fee_export": "Det nätbolaget betalar dig per såld kWh, om något.",
+          "supplier_markup": "Används bara när timkostnaden saknas och spotpriset används i stället.",
+          "vat_factor": "1,25 betyder 25 % moms.",
+          "reward_label": "T.ex. Grid Rewards. Visas på kortet.",
+          "rewards_include_vat": "Av: beloppen anges exklusive moms, och momsen de sparar läggs till."
+        }
+      }
+    },
+    "error": {
+      "start_in_future": "Startdatumet kan inte ligga i framtiden.",
+      "need_price": "Välj antingen kostnad för köpt el eller en elprissensor.",
+      "need_export_value": "Välj antingen ersättning för såld el eller en elprissensor."
+    },
+    "abort": {}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Inställningar för Solar Payback",
+        "data": {
+          "purchase_price": "Köpesumma",
+          "start_date": "Startdatum",
+          "consumption": "Husets förbrukning (kWh)",
+          "price": "Elprissensor (valfri reserv)",
+          "grid_fee_import": "Nätavgift per köpt kWh",
+          "grid_fee_export": "Nätersättning per såld kWh",
+          "supplier_markup": "Elbolagets påslag per kWh (exkl. moms)",
+          "vat_factor": "Momsfaktor",
+          "forecast_days": "Prognos baserad på senaste dagarna",
+          "reward_label": "Namn på månadsersättningen",
+          "rewards_include_vat": "Månadsersättningen anges inklusive moms"
+        }
+      }
+    }
+  },
+  "selector": {
+    "source": {
+      "options": {
+        "tibber": "Tibber",
+        "custom": "Annan statistik"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "saved_total": { "name": "Sparat hittills" },
+      "paid_back": { "name": "Återbetalt" },
+      "remaining": { "name": "Kvar att tjäna in" },
+      "payback_date": { "name": "Återbetalningsdatum" },
+      "payback_years": { "name": "Återbetalningstid" },
+      "daily_rate": { "name": "Sparat per dag" },
+      "saved_this_month": { "name": "Sparat denna månad" },
+      "rewards_total": { "name": "Månadsersättning totalt" }
+    },
+    "binary_sensor": {
+      "reward_missing": { "name": "Månadsersättning saknas" }
+    }
+  },
+  "exceptions": {
+    "no_entry": { "message": "Ingen Solar Payback hittades." },
+    "pick_entry": { "message": "Det finns flera Solar Payback, välj en." }
+  },
+  "services": {
+    "set_monthly_reward": {
+      "name": "Ange månadsersättning",
+      "description": "Anger en månads ersättning, t.ex. Grid Rewards från Tibbers faktura eller app.",
+      "fields": {
+        "config_entry_id": { "name": "Post", "description": "Behövs bara om du har flera." },
+        "month": { "name": "Månad", "description": "År och månad, t.ex. 2026-09." },
+        "amount": { "name": "Belopp", "description": "Månadens ersättning, som ett positivt tal." },
+        "includes_vat": { "name": "Inklusive moms", "description": "Lämna tomt för att använda postens inställning." }
+      }
+    },
+    "remove_monthly_reward": {
+      "name": "Ta bort månadsersättning",
+      "description": "Tar bort en månads ersättning.",
+      "fields": {
+        "config_entry_id": { "name": "Post", "description": "Behövs bara om du har flera." },
+        "month": { "name": "Månad", "description": "År och månad, t.ex. 2026-09." }
+      }
+    }
+  }
+}

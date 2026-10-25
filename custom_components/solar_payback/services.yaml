@@ -1,0 +1,34 @@
+set_monthly_reward:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: solar_payback
+    month:
+      required: true
+      example: "2026-09"
+      selector:
+        text:
+    amount:
+      required: true
+      example: 450.00
+      selector:
+        number:
+          min: 0
+          step: any
+          mode: box
+    includes_vat:
+      selector:
+        boolean:
+
+remove_monthly_reward:
+  fields:
+    config_entry_id:
+      selector:
+        config_entry:
+          integration: solar_payback
+    month:
+      required: true
+      example: "2026-09"
+      selector:
+        text:

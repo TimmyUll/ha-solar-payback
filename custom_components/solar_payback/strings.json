@@ -1,0 +1,146 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Your solar system",
+        "description": "How much the system cost and when it started producing. Use the amount you actually paid, after any tax deduction or subsidy.",
+        "data": {
+          "name": "Name",
+          "purchase_price": "Purchase price",
+          "start_date": "Start date"
+        },
+        "data_description": {
+          "purchase_price": "In your Home Assistant currency.",
+          "start_date": "The day the system started, for example the first day you sold electricity."
+        }
+      },
+      "source": {
+        "title": "Bought and sold electricity",
+        "description": "Tibber statistics were found. Use them, or pick your own statistics.",
+        "data": { "source": "Data source" }
+      },
+      "tibber": {
+        "title": "Tibber home",
+        "data": { "tibber_home": "Home" }
+      },
+      "custom": {
+        "title": "Bought and sold electricity",
+        "description": "Pick long-term statistics (energy in kWh, money in your currency). Only bought energy is required. Without the cost of bought energy you need an electricity price sensor.",
+        "data": {
+          "import_kwh": "Energy bought from the grid (kWh)",
+          "import_cost": "Cost of bought energy",
+          "export_kwh": "Energy sold to the grid (kWh)",
+          "export_revenue": "Revenue for sold energy",
+          "price": "Electricity price sensor (per kWh)"
+        },
+        "data_description": {
+          "import_cost": "For example the cost sensor the Energy dashboard creates, or your supplier's statistics.",
+          "export_revenue": "If missing, sold energy is valued at the electricity price.",
+          "price": "For example Nord Pool. Used when the cost is missing for an hour."
+        }
+      },
+      "consumption": {
+        "title": "The house's consumption",
+        "description": "Pick the statistic for everything the house uses (kWh), usually from your inverter. The README explains how to find or create it for different brands.",
+        "data": {
+          "consumption": "House consumption (kWh)",
+          "price": "Electricity price sensor (optional backup)"
+        }
+      },
+      "fees": {
+        "title": "Grid fees and settings",
+        "description": "Amounts per kWh in your currency. Look at your grid company's invoice.",
+        "data": {
+          "grid_fee_import": "Grid fee per bought kWh",
+          "grid_fee_export": "Grid compensation per sold kWh",
+          "supplier_markup": "Supplier markup per kWh (excl. VAT)",
+          "vat_factor": "VAT factor",
+          "forecast_days": "Forecast based on the last days",
+          "reward_label": "Name of the monthly reward",
+          "rewards_include_vat": "Monthly rewards are entered including VAT"
+        },
+        "data_description": {
+          "grid_fee_import": "Transfer fee plus energy tax, including VAT. What you avoid paying for every kWh you don't buy.",
+          "grid_fee_export": "What the grid company pays you per sold kWh, if anything.",
+          "supplier_markup": "Only used when the hourly cost is missing and the spot price is used instead.",
+          "vat_factor": "1.25 means 25 % VAT.",
+          "reward_label": "For example Grid Rewards. Shown on the card.",
+          "rewards_include_vat": "Off: amounts are entered excluding VAT, and the VAT they save is added."
+        }
+      }
+    },
+    "error": {
+      "start_in_future": "The start date can't be in the future.",
+      "need_price": "Pick either the cost of bought energy or an electricity price sensor.",
+      "need_export_value": "Pick either the revenue for sold energy or an electricity price sensor."
+    },
+    "abort": {}
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Solar Payback settings",
+        "data": {
+          "purchase_price": "Purchase price",
+          "start_date": "Start date",
+          "consumption": "House consumption (kWh)",
+          "price": "Electricity price sensor (optional backup)",
+          "grid_fee_import": "Grid fee per bought kWh",
+          "grid_fee_export": "Grid compensation per sold kWh",
+          "supplier_markup": "Supplier markup per kWh (excl. VAT)",
+          "vat_factor": "VAT factor",
+          "forecast_days": "Forecast based on the last days",
+          "reward_label": "Name of the monthly reward",
+          "rewards_include_vat": "Monthly rewards are entered including VAT"
+        }
+      }
+    }
+  },
+  "selector": {
+    "source": {
+      "options": {
+        "tibber": "Tibber",
+        "custom": "Other statistics"
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "saved_total": { "name": "Saved so far" },
+      "paid_back": { "name": "Paid back" },
+      "remaining": { "name": "Remaining" },
+      "payback_date": { "name": "Payback date" },
+      "payback_years": { "name": "Payback time" },
+      "daily_rate": { "name": "Saved per day" },
+      "saved_this_month": { "name": "Saved this month" },
+      "rewards_total": { "name": "Monthly rewards total" }
+    },
+    "binary_sensor": {
+      "reward_missing": { "name": "Monthly reward missing" }
+    }
+  },
+  "exceptions": {
+    "no_entry": { "message": "No Solar Payback entry found." },
+    "pick_entry": { "message": "There are several Solar Payback entries, pick one." }
+  },
+  "services": {
+    "set_monthly_reward": {
+      "name": "Set monthly reward",
+      "description": "Enters a month's reward, for example Tibber Grid Rewards from the invoice or the app.",
+      "fields": {
+        "config_entry_id": { "name": "Entry", "description": "Only needed if you have more than one." },
+        "month": { "name": "Month", "description": "Year and month, for example 2026-09." },
+        "amount": { "name": "Amount", "description": "The reward for the month, as a positive number." },
+        "includes_vat": { "name": "Includes VAT", "description": "Leave empty to use the setting of the entry." }
+      }
+    },
+    "remove_monthly_reward": {
+      "name": "Remove monthly reward",
+      "description": "Removes a month's reward.",
+      "fields": {
+        "config_entry_id": { "name": "Entry", "description": "Only needed if you have more than one." },
+        "month": { "name": "Month", "description": "Year and month, for example 2026-09." }
+      }
+    }
+  }
+}

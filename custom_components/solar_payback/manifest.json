@@ -1,0 +1,13 @@
+{
+  "domain": "solar_payback",
+  "name": "Solar Payback",
+  "codeowners": ["@TimmyUll"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "recorder"],
+  "documentation": "https://github.com/TimmyUll/ha-solar-payback",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/TimmyUll/ha-solar-payback/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
