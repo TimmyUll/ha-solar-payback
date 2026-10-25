@@ -1,0 +1,13 @@
+{
+  "domain": "solar_payback",
+  "name": "Solar Payback",
+  "codeowners": ["@OWNER"],
+  "config_flow": true,
+  "dependencies": ["frontend", "http", "recorder"],
+  "documentation": "https://github.com/OWNER/REPO",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "issue_tracker": "https://github.com/OWNER/REPO/issues",
+  "requirements": [],
+  "version": "0.1.0"
+}
