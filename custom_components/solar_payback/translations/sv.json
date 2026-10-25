@@ -56,6 +56,7 @@
           "supplier_markup": "Elbolagets påslag per kWh (exkl. moms)",
           "vat_factor": "Momsfaktor",
           "forecast_days": "Prognos baserad på senaste dagarna",
+          "rewards_enabled": "Jag får en månadsersättning (t.ex. Grid Rewards)",
           "reward_label": "Namn på månadsersättningen",
           "rewards_include_vat": "Månadsersättningen anges inklusive moms"
         },
@@ -64,6 +65,7 @@
           "grid_fee_export": "Det nätbolaget betalar dig per såld kWh, om något.",
           "supplier_markup": "Används bara när timkostnaden saknas och spotpriset används i stället.",
           "vat_factor": "1,25 betyder 25 % moms.",
+          "rewards_enabled": "Stäng av om anläggningen inte får någon månadsersättning, t.ex. från en batteritjänst. Då döljs ersättningen och påminnelsen i kortet.",
           "reward_label": "T.ex. Grid Rewards. Visas på kortet.",
           "rewards_include_vat": "Av: beloppen anges exklusive moms, och momsen de sparar läggs till."
         }
@@ -90,6 +92,7 @@
           "supplier_markup": "Elbolagets påslag per kWh (exkl. moms)",
           "vat_factor": "Momsfaktor",
           "forecast_days": "Prognos baserad på senaste dagarna",
+          "rewards_enabled": "Jag får en månadsersättning (t.ex. Grid Rewards)",
           "reward_label": "Namn på månadsersättningen",
           "rewards_include_vat": "Månadsersättningen anges inklusive moms"
         }

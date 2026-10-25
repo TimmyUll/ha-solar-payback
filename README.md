@@ -165,6 +165,7 @@ Use lifetime totals (not daily totals) in the formula so the result never drops 
    - *Supplier markup per kWh*: only used when the hourly cost is missing and the spot price is used instead. Excluding VAT.
    - *VAT factor*: 1.25 for 25 % VAT.
    - *Forecast based on the last days*: 60 is a good start. A longer period gives a calmer forecast.
+   - *I get a monthly reward*: turn on if a service pays you each month, for example Tibber Grid Rewards. Leave off if you get no such payment: the card then only shows solar, battery and sold electricity, and there is no monthly reminder.
    - *Name of the monthly reward*: shown on the card, for example *Grid Rewards*.
    - *Monthly rewards are entered including VAT*: leave off if your invoice shows the reward excluding VAT. Then the VAT it saves is added.
 6. Click **Submit**. The sensors appear after a few seconds.
@@ -172,6 +173,8 @@ Use lifetime totals (not daily totals) in the formula so the result never drops 
 You can change everything except the data source later under **Settings → Devices & services → Solar Payback → Configure**.
 
 ## Step 5: Enter your monthly reward (optional)
+
+Skip this step if you get no monthly reward. Otherwise, turn on *I get a monthly reward* in step 4 (or later under **Configure**).
 
 If you get paid for letting your battery help the grid (for example Tibber Grid Rewards, or a support-services/FCR payout from another provider), enter the amount once a month:
 
@@ -246,8 +249,8 @@ The card follows your theme and is shown in Swedish or English depending on your
 | Payback time | Years from start to the payback date |
 | Saved per day | Average for the last days (the forecast pace) |
 | Saved this month | Savings in the current month |
-| Monthly rewards total | Sum of all monthly rewards |
-| Monthly reward missing | On when last month has no reward value |
+| Monthly rewards total | Sum of all monthly rewards (only with monthly reward on) |
+| Monthly reward missing | On when last month has no reward value (only with monthly reward on) |
 
 ## Questions and limitations
 

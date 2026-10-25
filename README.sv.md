@@ -165,6 +165,7 @@ Använd totaler sedan start (inte dagssummor) i formeln, så att resultatet aldr
    - *Elbolagets påslag per kWh*: används bara när timkostnaden saknas och spotpriset används i stället. Exklusive moms.
    - *Momsfaktor*: 1,25 för 25 % moms.
    - *Prognos baserad på senaste dagarna*: 60 är en bra start. En längre period ger en lugnare prognos.
+   - *Jag får en månadsersättning*: slå på om en tjänst betalar dig varje månad, t.ex. Tibbers Grid Rewards. Låt vara av om du inte får någon sådan ersättning: kortet visar då bara sol, batteri och såld el, och ingen påminnelse kommer varje månad.
    - *Namn på månadsersättningen*: visas på kortet, t.ex. *Grid Rewards*.
    - *Månadsersättningen anges inklusive moms*: låt vara av om fakturan visar ersättningen exklusive moms. Då läggs momsen den sparar till.
 6. Tryck **Skicka**. Sensorerna dyker upp efter några sekunder.
@@ -172,6 +173,8 @@ Använd totaler sedan start (inte dagssummor) i formeln, så att resultatet aldr
 Allt utom datakällan kan ändras senare under **Inställningar → Enheter och tjänster → Solar Payback → Konfigurera**.
 
 ## Steg 5: Ange månadsersättningen (valfritt)
+
+Hoppa över det här steget om du inte får någon månadsersättning. Annars slår du på *Jag får en månadsersättning* i steg 4 (eller senare under **Konfigurera**).
 
 Får du betalt för att batteriet hjälper elnätet (t.ex. Tibbers Grid Rewards, eller ersättning för stödtjänster/FCR från en annan aktör), ange beloppet en gång i månaden:
 
@@ -246,8 +249,8 @@ Kortet följer ditt tema och visas på svenska eller engelska beroende på ditt 
 | Återbetalningstid | År från start till återbetalningsdatumet |
 | Sparat per dag | Snitt för de senaste dagarna (prognosens takt) |
 | Sparat denna månad | Sparat hittills i månaden |
-| Månadsersättning totalt | Summan av alla månadsersättningar |
-| Månadsersättning saknas | På när förra månaden saknar ersättning |
+| Månadsersättning totalt | Summan av alla månadsersättningar (bara med månadsersättning påslagen) |
+| Månadsersättning saknas | På när förra månaden saknar ersättning (bara med månadsersättning påslagen) |
 
 ## Frågor och begränsningar
 

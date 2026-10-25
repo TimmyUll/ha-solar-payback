@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntryType, DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -26,3 +29,10 @@ class SolarPaybackEntity(CoordinatorEntity[SolarPaybackCoordinator]):
             entry_type=DeviceEntryType.SERVICE,
             sw_version=VERSION,
         )
+
+
+def remove_entity(hass: HomeAssistant, entry: ConfigEntry, platform: str, key: str) -> None:
+    """Remove an entity that is no longer used, e.g. after turning rewards off."""
+    registry = er.async_get(hass)
+    if entity_id := registry.async_get_entity_id(platform, DOMAIN, f"{entry.entry_id}_{key}"):
+        registry.async_remove(entity_id)
