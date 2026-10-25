@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "solar_payback"
-VERSION = "0.3.1"
+VERSION = "0.3.2"
 
 # Investment
 CONF_NAME = "name"

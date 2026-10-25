@@ -3,11 +3,11 @@
   "name": "Solar Payback",
   "codeowners": ["@TimmyUll"],
   "config_flow": true,
-  "dependencies": ["frontend", "http", "recorder"],
+  "dependencies": ["frontend", "http", "lovelace", "recorder"],
   "documentation": "https://github.com/TimmyUll/ha-solar-payback",
   "integration_type": "service",
   "iot_class": "calculated",
   "issue_tracker": "https://github.com/TimmyUll/ha-solar-payback/issues",
   "requirements": [],
-  "version": "0.3.1"
+  "version": "0.3.2"
 }

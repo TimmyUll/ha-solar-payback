@@ -9,6 +9,7 @@ from pathlib import Path
 import voluptuous as vol
 from homeassistant.components.frontend import add_extra_js_url
 from homeassistant.components.http import StaticPathConfig
+from homeassistant.components.lovelace.const import LOVELACE_DATA
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -67,12 +68,37 @@ REMOVE_SCHEMA = vol.Schema(
 )
 
 
+async def _async_register_card(hass: HomeAssistant) -> None:
+    """Load the card on every dashboard.
+
+    Dashboards in storage mode get it as a dashboard resource, like other
+    integrations with their own card. Browsers can keep an old copy of the
+    start page, which then misses scripts added with add_extra_js_url.
+    """
+    base = f"{CARD_URL_BASE}/{CARD_FILE}"
+    url = f"{base}?v={VERSION}"
+    lovelace = hass.data.get(LOVELACE_DATA)
+    if lovelace is None or lovelace.resource_mode != "storage":
+        add_extra_js_url(hass, url)
+        return
+    resources = lovelace.resources
+    await resources.async_get_info()  # loads the stored resources
+    for item in resources.async_items():
+        if item["url"].split("?")[0] == base:
+            if item["url"] != url:
+                await resources.async_update_item(
+                    item["id"], {"res_type": "module", "url": url}
+                )
+            return
+    await resources.async_create_item({"res_type": "module", "url": url})
+
+
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Register the card and the services."""
     await hass.http.async_register_static_paths(
         [StaticPathConfig(CARD_URL_BASE, str(Path(__file__).parent / "frontend"), True)]
     )
-    add_extra_js_url(hass, f"{CARD_URL_BASE}/{CARD_FILE}?v={VERSION}")
+    await _async_register_card(hass)
 
     def _coordinator(call: ServiceCall) -> tuple[SolarPaybackCoordinator, ConfigEntry]:
         entries = [
