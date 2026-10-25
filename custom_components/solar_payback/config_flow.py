@@ -31,6 +31,7 @@ from .const import (
     CONF_PRICE,
     CONF_PURCHASE_PRICE,
     CONF_REWARD_LABEL,
+    CONF_REWARDS_ENABLED,
     CONF_REWARDS_INCLUDE_VAT,
     CONF_SOURCE,
     CONF_START_DATE,
@@ -77,7 +78,9 @@ def _tibber_ids(home: str) -> dict[str, str]:
     }
 
 
-def _fees_schema(c: dict[str, Any]) -> dict[Any, Any]:
+def _fees_schema(c: dict[str, Any], new: bool = False) -> dict[Any, Any]:
+    # Entries made before the reward option existed always had rewards.
+    rewards = c.get(CONF_REWARDS_ENABLED, not new)
     return {
         vol.Required(
             CONF_GRID_FEE_IMPORT, default=c.get(CONF_GRID_FEE_IMPORT, DEFAULT_GRID_FEE_IMPORT)
@@ -98,6 +101,7 @@ def _fees_schema(c: dict[str, Any]) -> dict[Any, Any]:
                 min=7, max=730, step=1, mode=selector.NumberSelectorMode.BOX
             )
         ),
+        vol.Required(CONF_REWARDS_ENABLED, default=rewards): selector.BooleanSelector(),
         vol.Required(
             CONF_REWARD_LABEL, default=c.get(CONF_REWARD_LABEL, DEFAULT_REWARD_LABEL)
         ): selector.TextSelector(),
@@ -258,7 +262,7 @@ class SolarPaybackConfigFlow(ConfigFlow, domain=DOMAIN):
             self._data.update(user_input)
             data = {k: v for k, v in self._data.items() if v not in (None, "")}
             return self.async_create_entry(title=data.pop(CONF_NAME), data=data)
-        return self.async_show_form(step_id="fees", data_schema=vol.Schema(_fees_schema({})))
+        return self.async_show_form(step_id="fees", data_schema=vol.Schema(_fees_schema({}, new=True)))
 
 
 class SolarPaybackOptionsFlow(OptionsFlow):

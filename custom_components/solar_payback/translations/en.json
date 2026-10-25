@@ -56,6 +56,7 @@
           "supplier_markup": "Supplier markup per kWh (excl. VAT)",
           "vat_factor": "VAT factor",
           "forecast_days": "Forecast based on the last days",
+          "rewards_enabled": "I get a monthly reward (for example Grid Rewards)",
           "reward_label": "Name of the monthly reward",
           "rewards_include_vat": "Monthly rewards are entered including VAT"
         },
@@ -64,6 +65,7 @@
           "grid_fee_export": "What the grid company pays you per sold kWh, if anything.",
           "supplier_markup": "Only used when the hourly cost is missing and the spot price is used instead.",
           "vat_factor": "1.25 means 25 % VAT.",
+          "rewards_enabled": "Turn off if the system has no monthly payment from e.g. a battery service. The reward parts of the card and the reminder are then hidden.",
           "reward_label": "For example Grid Rewards. Shown on the card.",
           "rewards_include_vat": "Off: amounts are entered excluding VAT, and the VAT they save is added."
         }
@@ -90,6 +92,7 @@
           "supplier_markup": "Supplier markup per kWh (excl. VAT)",
           "vat_factor": "VAT factor",
           "forecast_days": "Forecast based on the last days",
+          "rewards_enabled": "I get a monthly reward (for example Grid Rewards)",
           "reward_label": "Name of the monthly reward",
           "rewards_include_vat": "Monthly rewards are entered including VAT"
         }

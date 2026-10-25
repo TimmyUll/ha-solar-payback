@@ -31,7 +31,7 @@ from .const import (
     DEFAULT_VAT,
 )
 from .coordinator import SolarPaybackCoordinator, entry_config
-from .entity import SolarPaybackEntity
+from .entity import SolarPaybackEntity, remove_entity
 
 CURRENCY = "currency"  # replaced with the configured currency
 
@@ -114,9 +114,13 @@ async def async_setup_entry(
 ) -> None:
     """Add sensors."""
     coordinator = entry.runtime_data
+    descriptions = list(SENSORS)
+    if not coordinator.rewards_enabled:
+        descriptions = [d for d in descriptions if d.key != "rewards_total"]
+        remove_entity(hass, entry, "sensor", "rewards_total")
     async_add_entities(
         (TotalSensor if d.key == "saved_total" else PaybackSensor)(coordinator, d)
-        for d in SENSORS
+        for d in descriptions
     )
 
 
@@ -151,7 +155,7 @@ class TotalSensor(PaybackSensor):
         {"days", "months", "purchase_price", "start_date", "daily_rate",
          "payback_date", "reward_label", "grid_fee_import", "forecast_days",
          "estimated_until", "rewards", "rewards_include_vat", "vat_factor",
-         "missing_reward_month", "config_entry_id"}
+         "missing_reward_month", "config_entry_id", "rewards_enabled"}
     )
 
     @property
@@ -159,6 +163,7 @@ class TotalSensor(PaybackSensor):
         """Data for the card."""
         r = self.coordinator.data
         c = entry_config(self.coordinator.config_entry)
+        rewards_on = self.coordinator.rewards_enabled
         estimated = [d.day for d in r.days if d.home_estimated]
         paid = r.payback_date
         return {
@@ -172,12 +177,15 @@ class TotalSensor(PaybackSensor):
             "estimated_until": estimated[-1].isoformat() if estimated else None,
             # For entering monthly rewards from the card
             "config_entry_id": self.coordinator.config_entry.entry_id,
+            "rewards_enabled": rewards_on,
             "rewards": dict(sorted(self.coordinator.rewards.items())),
             "rewards_include_vat": c.get(CONF_REWARDS_INCLUDE_VAT, False),
             "vat_factor": c.get(CONF_VAT, DEFAULT_VAT),
             "missing_reward_month": missing_reward_month(
                 r.today, r.start_date, self.coordinator.rewards
-            ),
+            )
+            if rewards_on
+            else None,
             "months": [
                 {
                     "month": m.month,

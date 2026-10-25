@@ -28,6 +28,7 @@ from .const import (
     CONF_MARKUP,
     CONF_PRICE,
     CONF_PURCHASE_PRICE,
+    CONF_REWARDS_ENABLED,
     CONF_START_DATE,
     CONF_VAT,
     DEFAULT_FORECAST_DAYS,
@@ -79,6 +80,11 @@ class SolarPaybackCoordinator(DataUpdateCoordinator[Result]):
             self.rewards[month] = value
         await self._store.async_save({"rewards": dict(sorted(self.rewards.items()))})
         await self.async_refresh()
+
+    @property
+    def rewards_enabled(self) -> bool:
+        """Whether the system gets a monthly reward (on for entries from before the option)."""
+        return bool(entry_config(self.config_entry).get(CONF_REWARDS_ENABLED, True))
 
     @property
     def settings(self) -> Settings:
@@ -137,7 +143,12 @@ class SolarPaybackCoordinator(DataUpdateCoordinator[Result]):
                 sums.get(CONF_CONSUMPTION),
             )
         return await self.hass.async_add_executor_job(
-            calculate, settings, series, dict(self.rewards), tz, now
+            calculate,
+            settings,
+            series,
+            dict(self.rewards) if self.rewards_enabled else {},
+            tz,
+            now,
         )
 
     async def _fetch(

@@ -1,6 +1,8 @@
 // Solar Payback card: how much solar panels and a battery have earned back.
 // Reads the "Saved so far" sensor of the Solar Payback integration.
 const C = { home: '#ff7a59', sold: '#7b2cbf', reward: '#1fae7a', line: '#ef4444' };
+// " * partly estimated (a, b)." for the parts that apply, or nothing.
+const estNote = (head, parts) => { const p = parts.filter(Boolean); return p.length ? ` * ${head} (${p.join(', ')}).` : ''; };
 const T = {
   en: {
     title: 'Solar and battery', paid: 'paid back', of: 'saved of', paidOff: 'Paid off!',
@@ -11,10 +13,10 @@ const T = {
     add: l => `Add ${l}`, lacks: (l, m) => `${l} for ${m} is missing`, addNow: 'Add',
     month: 'Month', amount: 'Amount', exVat: 'excluding VAT', inclVat: 'including VAT',
     save: 'Save', cancel: 'Cancel', saved: 'Saved', failed: 'Could not save', current: v => `Now: ${v}`,
-    note: (s) => `So far: solar and battery in the house ${s.home}, sold electricity ${s.sold}, ${s.label} ${s.reward}. `
+    note: (s) => `So far: solar and battery in the house ${s.home}, sold electricity ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
       + `Compared with what the electricity would have cost without the system: the hourly price plus the grid fee (${s.fee} per kWh). `
       + `The forecast follows the pace of the last ${s.days} days (${s.rate} per day) and does not account for seasons.`
-      + (s.est ? ` * partly estimated (house consumption before ${s.est}, ${s.label} for months without a value).` : ` * partly estimated (${s.label} for months without a value).`),
+      + estNote('partly estimated', [s.est && `house consumption before ${s.est}`, s.rw && `${s.label} for months without a value`]),
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
   sv: {
@@ -26,10 +28,10 @@ const T = {
     add: l => `Lägg till ${l}`, lacks: (l, m) => `${l} för ${m} saknas`, addNow: 'Lägg till',
     month: 'Månad', amount: 'Belopp', exVat: 'exklusive moms', inclVat: 'inklusive moms',
     save: 'Spara', cancel: 'Avbryt', saved: 'Sparat', failed: 'Kunde inte spara', current: v => `Nu: ${v}`,
-    note: (s) => `Hittills: sol och batteri i huset ${s.home}, såld el ${s.sold}, ${s.label} ${s.reward}. `
+    note: (s) => `Hittills: sol och batteri i huset ${s.home}, såld el ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
       + `Jämfört med vad elen hade kostat utan anläggningen: timpriset plus nätavgiften (${s.fee} per kWh). `
       + `Prognosen följer takten de senaste ${s.days} dagarna (${s.rate} per dag) och tar inte hänsyn till årstider.`
-      + (s.est ? ` * delvis uppskattat (husets förbrukning före ${s.est}, ${s.label} för månader utan värde).` : ` * delvis uppskattat (${s.label} för månader utan värde).`),
+      + estNote('delvis uppskattat', [s.est && `husets förbrukning före ${s.est}`, s.rw && `${s.label} för månader utan värde`]),
     months: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
   },
 };
@@ -301,9 +303,11 @@ class SolarPaybackCard extends HTMLElement {
     }
     const a = st.attributes;
     const label = a.reward_label || 'Grid Rewards';
+    // Systems without a monthly reward hide everything about it.
+    const rw = a.rewards_enabled !== false;
     this._leg.innerHTML = `<span><i style="background:${C.home}"></i>${esc(t.home)}</span>`
       + `<span><i style="background:${C.sold}"></i>${esc(t.sold)}</span>`
-      + `<span><i style="background:${C.reward}"></i>${esc(label)}</span>`;
+      + (rw ? `<span><i style="background:${C.reward}"></i>${esc(label)}</span>` : '');
     this._h.textContent = t.perMonth;
     this._attrs = a; this._label = label;
     this._missing = a.missing_reward_month || null;
@@ -315,7 +319,7 @@ class SolarPaybackCard extends HTMLElement {
     sr.querySelector('.rw-l-a').textContent = `${t.amount} (${a.rewards_include_vat ? t.inclVat : t.exVat})`;
     sr.querySelector('.rw-save').textContent = t.save;
     sr.querySelector('.rw-cancel').textContent = t.cancel;
-    this._rw.style.display = a.config_entry_id ? '' : 'none';
+    this._rw.style.display = rw && a.config_entry_id ? '' : 'none';
 
     const inv = Number(a.purchase_price) || 0;
     const tot = Number(st.state) || 0;
@@ -413,7 +417,7 @@ class SolarPaybackCard extends HTMLElement {
     const estD = a.estimated_until ? new Date(parseDay(a.estimated_until) + DAY) : null;
     this._note.textContent = t.note({
       home: this._money(sum('home')), sold: this._money(sum('sold')), reward: this._money(sum('reward')),
-      label, fee: this._money(Number(a.grid_fee_import) || 0, 4),
+      label, rw, fee: this._money(Number(a.grid_fee_import) || 0, 4),
       days: a.forecast_days, rate: this._money(rate),
       est: estD ? estD.toLocaleDateString(lang, { day: 'numeric', month: 'long' }) : null,
     });

@@ -102,6 +102,8 @@ async def test_config_flow_tibber(hass: HomeAssistant) -> None:
     assert result["title"] == "Sol"
     assert result["data"]["import_kwh"] == f"tibber:energy_consumption_{HOME}"
     assert result["data"]["export_revenue"] == f"tibber:energy_profit_{HOME}"
+    # New systems have no monthly reward unless it is turned on
+    assert result["data"]["rewards_enabled"] is False
 
 
 async def test_config_flow_custom_needs_price(hass: HomeAssistant) -> None:
@@ -199,6 +201,8 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     entry.add_to_hass(hass)
     assert await hass.config_entries.async_setup(entry.entry_id)
     await hass.async_block_till_done()
+    # Entries from before the option count as having rewards
+    assert hass.states.get("binary_sensor.sol_monthly_reward_missing") is not None
     result = await hass.config_entries.options.async_init(entry.entry_id)
     assert result["type"] is FlowResultType.FORM
     result = await hass.config_entries.options.async_configure(
@@ -206,8 +210,8 @@ async def test_options_flow(hass: HomeAssistant) -> None:
         {
             "purchase_price": 2000, "start_date": _start_date(), "consumption": "test:house_load",
             "grid_fee_import": 0.0, "grid_fee_export": 0.0, "supplier_markup": 0.0,
-            "vat_factor": 1.25, "forecast_days": 30, "reward_label": "Rewards",
-            "rewards_include_vat": True,
+            "vat_factor": 1.25, "forecast_days": 30, "rewards_enabled": False,
+            "reward_label": "Rewards", "rewards_include_vat": True,
         },
     )
     assert result["type"] is FlowResultType.CREATE_ENTRY
@@ -215,3 +219,41 @@ async def test_options_flow(hass: HomeAssistant) -> None:
     state = hass.states.get("sensor.sol_saved_so_far")
     assert state.attributes["purchase_price"] == 2000
     assert state.attributes["reward_label"] == "Rewards"
+    # Turning rewards off removes the reminder and the rewards total
+    assert state.attributes["rewards_enabled"] is False
+    assert state.attributes["missing_reward_month"] is None
+    assert hass.states.get("binary_sensor.sol_monthly_reward_missing") is None
+    assert hass.states.get("sensor.sol_monthly_rewards_total") is None
+
+
+async def test_rewards_ignored_when_off(hass: HomeAssistant) -> None:
+    """A stored reward does not count when the system has no monthly reward."""
+    await _setup_stats(hass)
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        title="Sol",
+        data={
+            "purchase_price": 100000,
+            "start_date": _start_date(),
+            "source": "custom",
+            "import_kwh": f"tibber:energy_consumption_{HOME}",
+            "import_cost": f"tibber:energy_totalcost_{HOME}",
+            "export_kwh": f"tibber:energy_production_{HOME}",
+            "export_revenue": f"tibber:energy_profit_{HOME}",
+            "consumption": "test:house_load",
+            "grid_fee_import": 0.5,
+            "grid_fee_export": 0.1,
+            "rewards_enabled": False,
+        },
+    )
+    entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(entry.entry_id)
+    await hass.async_block_till_done()
+    month = dt_util.now().strftime("%Y-%m")
+    await hass.services.async_call(
+        DOMAIN, "set_monthly_reward", {"month": month, "amount": 100}, blocking=True
+    )
+    await hass.async_block_till_done()
+    state = hass.states.get("sensor.sol_saved_so_far")
+    assert float(state.state) == pytest.approx(30 * 5.45, rel=1e-3)
+    assert all(m["reward"] == 0 for m in state.attributes["months"])

@@ -14,7 +14,7 @@ from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import SolarPaybackConfigEntry
 from .calc import missing_reward_month, month_key
-from .entity import SolarPaybackEntity
+from .entity import SolarPaybackEntity, remove_entity
 
 
 async def async_setup_entry(
@@ -22,7 +22,10 @@ async def async_setup_entry(
     entry: SolarPaybackConfigEntry,
     async_add_entities: AddConfigEntryEntitiesCallback,
 ) -> None:
-    """Add the binary sensor."""
+    """Add the binary sensor, only for systems that get a monthly reward."""
+    if not entry.runtime_data.rewards_enabled:
+        remove_entity(hass, entry, "binary_sensor", "reward_missing")
+        return
     async_add_entities([RewardMissingSensor(entry.runtime_data, "reward_missing")])
 
 
