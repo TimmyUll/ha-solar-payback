@@ -18,14 +18,17 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import SolarPaybackConfigEntry
-from .calc import Result, month_key
+from .calc import Result, missing_reward_month, month_key
 from .const import (
     CONF_FORECAST_DAYS,
     CONF_GRID_FEE_IMPORT,
     CONF_REWARD_LABEL,
+    CONF_REWARDS_INCLUDE_VAT,
+    CONF_VAT,
     DEFAULT_FORECAST_DAYS,
     DEFAULT_GRID_FEE_IMPORT,
     DEFAULT_REWARD_LABEL,
+    DEFAULT_VAT,
 )
 from .coordinator import SolarPaybackCoordinator, entry_config
 from .entity import SolarPaybackEntity
@@ -147,7 +150,8 @@ class TotalSensor(PaybackSensor):
     _unrecorded_attributes = frozenset(
         {"days", "months", "purchase_price", "start_date", "daily_rate",
          "payback_date", "reward_label", "grid_fee_import", "forecast_days",
-         "estimated_until"}
+         "estimated_until", "rewards", "rewards_include_vat", "vat_factor",
+         "missing_reward_month", "config_entry_id"}
     )
 
     @property
@@ -166,6 +170,14 @@ class TotalSensor(PaybackSensor):
             "grid_fee_import": c.get(CONF_GRID_FEE_IMPORT, DEFAULT_GRID_FEE_IMPORT),
             "forecast_days": c.get(CONF_FORECAST_DAYS, DEFAULT_FORECAST_DAYS),
             "estimated_until": estimated[-1].isoformat() if estimated else None,
+            # For entering monthly rewards from the card
+            "config_entry_id": self.coordinator.config_entry.entry_id,
+            "rewards": dict(sorted(self.coordinator.rewards.items())),
+            "rewards_include_vat": c.get(CONF_REWARDS_INCLUDE_VAT, False),
+            "vat_factor": c.get(CONF_VAT, DEFAULT_VAT),
+            "missing_reward_month": missing_reward_month(
+                r.today, r.start_date, self.coordinator.rewards
+            ),
             "months": [
                 {
                     "month": m.month,

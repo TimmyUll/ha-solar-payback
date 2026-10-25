@@ -129,3 +129,13 @@ def test_nothing_before_start_date() -> None:
     r = calculate(settings(), series, {}, UTC, datetime(2026, 6, 2, tzinfo=UTC))
     assert r.days[0].day == START
     assert r.total == pytest.approx(0.0)
+
+
+def test_missing_reward_month() -> None:
+    from custom_components.solar_payback.calc import missing_reward_month
+
+    today = date(2026, 10, 25)
+    assert missing_reward_month(today, START, {}) == "2026-09"
+    assert missing_reward_month(today, START, {"2026-09": 1.0}) is None
+    # Last month is before the start date
+    assert missing_reward_month(today, date(2026, 10, 1), {}) is None

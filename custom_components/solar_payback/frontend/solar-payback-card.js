@@ -8,6 +8,9 @@ const T = {
     soFar: 'So far', whole: 'All the way', home: 'Solar and battery in the house', sold: 'Sold electricity',
     perMonth: 'Saved per month', all: n => `Show all ${n} months`, fewer: 'Show fewer', price: 'Purchase price', loading: 'Waiting for data…',
     missing: 'Entity not found', pick: 'Pick the "Saved so far" sensor of Solar Payback.',
+    add: l => `Add ${l}`, lacks: (l, m) => `${l} for ${m} is missing`, addNow: 'Add',
+    month: 'Month', amount: 'Amount', exVat: 'excluding VAT', inclVat: 'including VAT',
+    save: 'Save', cancel: 'Cancel', saved: 'Saved', failed: 'Could not save', current: v => `Now: ${v}`,
     note: (s) => `So far: solar and battery in the house ${s.home}, sold electricity ${s.sold}, ${s.label} ${s.reward}. `
       + `Compared with what the electricity would have cost without the system: the hourly price plus the grid fee (${s.fee} per kWh). `
       + `The forecast follows the pace of the last ${s.days} days (${s.rate} per day) and does not account for seasons.`
@@ -20,6 +23,9 @@ const T = {
     soFar: 'Hittills', whole: 'Hela vägen', home: 'Sol och batteri i huset', sold: 'Såld el',
     perMonth: 'Sparat per månad', all: n => `Visa alla ${n} månader`, fewer: 'Visa färre', price: 'Inköpspris', loading: 'Väntar på data…',
     missing: 'Hittar inte entiteten', pick: 'Välj sensorn "Sparat hittills" från Solar Payback.',
+    add: l => `Lägg till ${l}`, lacks: (l, m) => `${l} för ${m} saknas`, addNow: 'Lägg till',
+    month: 'Månad', amount: 'Belopp', exVat: 'exklusive moms', inclVat: 'inklusive moms',
+    save: 'Spara', cancel: 'Avbryt', saved: 'Sparat', failed: 'Kunde inte spara', current: v => `Nu: ${v}`,
     note: (s) => `Hittills: sol och batteri i huset ${s.home}, såld el ${s.sold}, ${s.label} ${s.reward}. `
       + `Jämfört med vad elen hade kostat utan anläggningen: timpriset plus nätavgiften (${s.fee} per kWh). `
       + `Prognosen följer takten de senaste ${s.days} dagarna (${s.rate} per dag) och tar inte hänsyn till årstider.`
@@ -130,6 +136,25 @@ class SolarPaybackCard extends HTMLElement {
           border:none; padding:6px 0 0 0; cursor:pointer; }
         .note { font-size:11px; line-height:1.5; color:var(--secondary-text-color); padding:12px 20px 0 20px; }
         .msg { padding:20px; font-size:13px; color:var(--secondary-text-color); }
+        .miss { display:none; margin-top:8px; font-size:12px; font-weight:600; color:${C.reward}; cursor:pointer; }
+        .miss.on { display:block; }
+        .rw { padding:14px 20px 0 20px; }
+        .rw-btn { font:inherit; font-size:13px; font-weight:600; color:#fff; background:${C.reward}; border:none;
+          border-radius:999px; padding:8px 14px; cursor:pointer; }
+        .rw-form { display:none; background:var(--secondary-background-color); border-radius:16px; padding:14px; }
+        .rw.open .rw-form { display:block; }
+        .rw.open .rw-btn { display:none; }
+        .rw-row { display:flex; gap:10px; flex-wrap:wrap; }
+        .rw-row label { display:flex; flex-direction:column; gap:4px; font-size:11px; color:var(--secondary-text-color); flex:1 1 120px; }
+        .rw-row select, .rw-row input { font:inherit; font-size:14px; color:var(--primary-text-color);
+          background:var(--card-background-color); border:1px solid var(--divider-color, rgba(0,0,0,0.12));
+          border-radius:10px; padding:8px 10px; min-width:0; }
+        .rw-hint { font-size:11px; color:var(--secondary-text-color); margin-top:6px; min-height:14px; }
+        .rw-act { display:flex; gap:8px; margin-top:10px; align-items:center; }
+        .rw-act button { font:inherit; font-size:13px; font-weight:600; border:none; border-radius:999px; padding:8px 14px; cursor:pointer; }
+        .rw-save { color:#fff; background:${C.reward}; }
+        .rw-cancel { color:var(--primary-text-color); background:none; }
+        .rw-msg { font-size:12px; color:var(--secondary-text-color); }
       </style>
       <ha-card>
         <div class="top">
@@ -146,6 +171,7 @@ class SolarPaybackCard extends HTMLElement {
             <div class="big">–</div>
             <div class="of">&nbsp;</div>
             <div class="pill"></div>
+            <div class="miss"></div>
           </div>
           <ha-icon class="chev" icon="mdi:chevron-down"></ha-icon>
         </div>
@@ -156,6 +182,17 @@ class SolarPaybackCard extends HTMLElement {
           <div class="h"></div>
           <div class="rows"></div>
           <div style="padding:0 20px"><button class="toggle"></button></div>
+          <div class="rw">
+            <button class="rw-btn"></button>
+            <div class="rw-form">
+              <div class="rw-row">
+                <label><span class="rw-l-m"></span><select class="rw-m"></select></label>
+                <label><span class="rw-l-a"></span><input class="rw-a" type="number" inputmode="decimal" step="0.01" min="0"></label>
+              </div>
+              <div class="rw-hint"></div>
+              <div class="rw-act"><button class="rw-save"></button><button class="rw-cancel"></button><span class="rw-msg"></span></div>
+            </div>
+          </div>
           <div class="note"></div>
         </div>
       </ha-card>`;
@@ -163,6 +200,18 @@ class SolarPaybackCard extends HTMLElement {
     this._card = $('ha-card'); this._vp = $('.vp'); this._rows = $('.rows'); this._note = $('.note');
     this._arc = $('.arc'); this._num = $('.num'); this._unit = $('.unit'); this._title = $('.title');
     this._big = $('.big'); this._of = $('.of'); this._pill = $('.pill'); this._leg = $('.leg'); this._h = $('.h'); this._toggle = $('.toggle');
+    this._miss = $('.miss'); this._rw = $('.rw'); this._rwM = $('.rw-m'); this._rwA = $('.rw-a');
+    this._rwHint = $('.rw-hint'); this._rwMsg = $('.rw-msg');
+    $('.rw-btn').addEventListener('click', () => this._openReward());
+    $('.rw-cancel').addEventListener('click', () => { this._rw.classList.remove('open'); this._rwMsg.textContent = ''; });
+    $('.rw-save').addEventListener('click', () => this._saveReward());
+    this._rwM.addEventListener('change', () => this._fillReward());
+    this._miss.addEventListener('click', ev => {
+      ev.stopPropagation();
+      this._card.setAttribute('data-open', '');
+      this._openReward(this._missing);
+      requestAnimationFrame(() => { this._render(); this._rw.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); });
+    });
     this._toggle.addEventListener('click', () => { this._allMonths = !this._allMonths; this._render(); });
     $('.top').addEventListener('click', () => {
       if (this._card.hasAttribute('data-open')) this._card.removeAttribute('data-open');
@@ -177,6 +226,62 @@ class SolarPaybackCard extends HTMLElement {
       if (w && w !== this._lastW) { this._lastW = w; this._render(); }
     });
     this._ro.observe(this._vp);
+  }
+
+  _monthName(m) {
+    return `${this._t.months[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
+  }
+
+  // Months from the start date to this month, newest first.
+  _rewardMonths() {
+    const a = this._attrs || {};
+    const out = [];
+    if (!a.start_date) return out;
+    const [sy, sm] = a.start_date.split('-').map(Number);
+    const now = new Date();
+    for (let y = now.getFullYear(), m = now.getMonth() + 1; y > sy || (y === sy && m >= sm); m--) {
+      if (m === 0) { m = 12; y--; if (y < sy) break; }
+      out.push(`${y}-${String(m).padStart(2, '0')}`);
+      if (out.length > 240) break;
+    }
+    return out;
+  }
+
+  _openReward(month) {
+    const months = this._rewardMonths();
+    const rewards = (this._attrs && this._attrs.rewards) || {};
+    const pick = month || months.find((m, i) => i > 0 && rewards[m] == null) || months[1] || months[0];
+    this._rwM.innerHTML = months.map(m => `<option value="${m}">${esc(this._monthName(m))}</option>`).join('');
+    if (pick) this._rwM.value = pick;
+    this._rwMsg.textContent = '';
+    this._rw.classList.add('open');
+    this._fillReward();
+    this._rwA.focus();
+  }
+
+  // Show the stored value for the chosen month, in the same VAT terms as it is entered.
+  _fillReward() {
+    const a = this._attrs || {};
+    const v = (a.rewards || {})[this._rwM.value];
+    const vat = Number(a.vat_factor) || 1;
+    const shown = v == null ? null : Math.round((a.rewards_include_vat ? v : v / vat) * 100) / 100;
+    this._rwA.value = shown == null ? '' : String(shown);
+    this._rwHint.textContent = shown == null ? '' : this._t.current(this._money(shown, 2));
+  }
+
+  async _saveReward() {
+    const amount = parseFloat(String(this._rwA.value).replace(',', '.'));
+    if (!isFinite(amount) || amount < 0) { this._rwA.focus(); return; }
+    const t = this._t;
+    try {
+      await this._hass.callService('solar_payback', 'set_monthly_reward', {
+        config_entry_id: this._attrs.config_entry_id, month: this._rwM.value, amount,
+      });
+      this._rwMsg.textContent = t.saved;
+      setTimeout(() => { this._rw.classList.remove('open'); this._rwMsg.textContent = ''; }, 1200);
+    } catch (e) {
+      this._rwMsg.textContent = `${t.failed}${e && e.message ? `: ${e.message}` : ''}`;
+    }
   }
 
   _render() {
@@ -200,6 +305,17 @@ class SolarPaybackCard extends HTMLElement {
       + `<span><i style="background:${C.sold}"></i>${esc(t.sold)}</span>`
       + `<span><i style="background:${C.reward}"></i>${esc(label)}</span>`;
     this._h.textContent = t.perMonth;
+    this._attrs = a; this._label = label;
+    this._missing = a.missing_reward_month || null;
+    this._miss.classList.toggle('on', !!this._missing);
+    if (this._missing) this._miss.textContent = `${t.lacks(label, this._monthName(this._missing))} · ${t.addNow} ›`;
+    const sr = this.shadowRoot;
+    sr.querySelector('.rw-btn').textContent = `+ ${t.add(label)}`;
+    sr.querySelector('.rw-l-m').textContent = t.month;
+    sr.querySelector('.rw-l-a').textContent = `${t.amount} (${a.rewards_include_vat ? t.inclVat : t.exVat})`;
+    sr.querySelector('.rw-save').textContent = t.save;
+    sr.querySelector('.rw-cancel').textContent = t.cancel;
+    this._rw.style.display = a.config_entry_id ? '' : 'none';
 
     const inv = Number(a.purchase_price) || 0;
     const tot = Number(st.state) || 0;

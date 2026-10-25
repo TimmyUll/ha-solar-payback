@@ -156,6 +156,8 @@ async def test_sensors_and_reward_service(hass: HomeAssistant) -> None:
     assert float(state.state) == pytest.approx(30 * 5.45, rel=1e-3)
     assert state.attributes["unit_of_measurement"] == hass.config.currency
     assert len(state.attributes["days"]) >= 3
+    assert state.attributes["config_entry_id"] == entry.entry_id
+    assert state.attributes["rewards"] == {}
     assert hass.states.get("sensor.sol_paid_back") is not None
     assert hass.states.get("binary_sensor.sol_monthly_reward_missing") is not None
 
@@ -166,6 +168,7 @@ async def test_sensors_and_reward_service(hass: HomeAssistant) -> None:
     await hass.async_block_till_done()
     state = hass.states.get("sensor.sol_saved_so_far")
     assert float(state.state) == pytest.approx(30 * 5.45 + 125, rel=1e-3)
+    assert hass.states.get("sensor.sol_saved_so_far").attributes["rewards"] == {month: 125.0}
     rewards = hass.states.get("sensor.sol_monthly_rewards_total")
     assert float(rewards.state) == pytest.approx(125)
 

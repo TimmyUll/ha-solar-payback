@@ -180,6 +180,8 @@ Får du betalt för att batteriet hjälper elnätet (t.ex. Tibbers Grid Rewards,
 3. Fyll i *Månad* (t.ex. `2026-09`) och *Belopp* (som ett positivt tal).
 4. Tryck **Utför åtgärd**.
 
+**Enklast:** öppna kortet, tryck **+ Lägg till Grid Rewards**, välj månad, skriv beloppet och tryck **Spara**. När förra månaden saknas visar kortet en påminnelse överst som öppnar samma ruta.
+
 Eller i YAML:
 
 ```yaml

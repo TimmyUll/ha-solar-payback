@@ -142,6 +142,14 @@ def month_key(d: date) -> str:
     return f"{d.year:04d}-{d.month:02d}"
 
 
+def missing_reward_month(today: date, start: date, rewards: dict[str, float]) -> str | None:
+    """Last month (YYYY-MM) if it has no reward value and is after the start, else None."""
+    prev = month_key(today.replace(day=1) - timedelta(days=1))
+    if prev < month_key(start) or prev in rewards:
+        return None
+    return prev
+
+
 def calculate(
     settings: Settings,
     series: Series,

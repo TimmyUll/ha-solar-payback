@@ -180,6 +180,8 @@ If you get paid for letting your battery help the grid (for example Tibber Grid 
 3. Fill in *Month* (for example `2026-09`) and *Amount* (as a positive number).
 4. Click **Perform action**.
 
+**Easiest:** open the card, tap **+ Add Grid Rewards**, pick the month, type the amount and tap **Save**. When last month is missing, the card shows a reminder at the top that opens the same form.
+
 Or in YAML:
 
 ```yaml
