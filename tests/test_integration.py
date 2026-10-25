@@ -4,17 +4,20 @@ from datetime import timedelta
 
 import pytest
 from homeassistant import config_entries
+from homeassistant.components.lovelace.const import LOVELACE_DATA
 from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
 from homeassistant.components.recorder.statistics import async_add_external_statistics
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
+from homeassistant.setup import async_setup_component
 from homeassistant.util import dt as dt_util
 from pytest_homeassistant_custom_component.common import MockConfigEntry
 from pytest_homeassistant_custom_component.components.recorder.common import (
     async_wait_recording_done,
 )
 
-from custom_components.solar_payback.const import DOMAIN
+from custom_components.solar_payback import _async_register_card
+from custom_components.solar_payback.const import DOMAIN, VERSION
 
 HOME = "abc123"
 
@@ -257,3 +260,23 @@ async def test_rewards_ignored_when_off(hass: HomeAssistant) -> None:
     state = hass.states.get("sensor.sol_saved_so_far")
     assert float(state.state) == pytest.approx(30 * 5.45, rel=1e-3)
     assert all(m["reward"] == 0 for m in state.attributes["months"])
+
+
+async def test_card_added_as_dashboard_resource(hass: HomeAssistant) -> None:
+    """The card becomes a dashboard resource, and an old version is updated."""
+    assert await async_setup_component(hass, "lovelace", {})
+    resources = hass.data[LOVELACE_DATA].resources
+    await resources.async_get_info()
+    await resources.async_create_item(
+        {"res_type": "module", "url": "/solar_payback_static/solar-payback-card.js?v=0.1"}
+    )
+    await resources.async_create_item({"res_type": "module", "url": "/local/other.js"})
+
+    await _async_register_card(hass)
+    await _async_register_card(hass)  # a second run changes nothing
+
+    urls = sorted(r["url"] for r in resources.async_items())
+    assert urls == [
+        "/local/other.js",
+        f"/solar_payback_static/solar-payback-card.js?v={VERSION}",
+    ]
