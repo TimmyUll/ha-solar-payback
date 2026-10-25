@@ -5,30 +5,30 @@ const C = { home: '#ff7a59', sold: '#7b2cbf', reward: '#1fae7a', line: '#ef4444'
 const estNote = (head, parts) => { const p = parts.filter(Boolean); return p.length ? ` * ${head} (${p.join(', ')}).` : ''; };
 const T = {
   en: {
-    title: 'Solar and battery', paid: 'paid back', of: 'saved of', paidOff: 'Paid off!',
+    title: 'Payback', paid: 'paid back', of: 'saved of', paidOff: 'Paid off!',
     payback: 'Paid back about', years: 'years', early: 'Too early for a forecast',
-    soFar: 'So far', whole: 'All the way', home: 'Solar and battery in the house', sold: 'Sold electricity',
+    soFar: 'So far', whole: 'All the way', home: 'Own power used at home', sold: 'Sold electricity',
     perMonth: 'Saved per month', all: n => `Show all ${n} months`, fewer: 'Show fewer', price: 'Purchase price', loading: 'Waiting for data…',
     missing: 'Entity not found', pick: 'Pick the "Saved so far" sensor of Solar Payback.',
     add: l => `Add ${l}`, lacks: (l, m) => `${l} for ${m} is missing`, addNow: 'Add',
     month: 'Month', amount: 'Amount', exVat: 'excluding VAT', inclVat: 'including VAT',
     save: 'Save', cancel: 'Cancel', saved: 'Saved', failed: 'Could not save', current: v => `Now: ${v}`,
-    note: (s) => `So far: solar and battery in the house ${s.home}, sold electricity ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
+    note: (s) => `So far: own power used at home ${s.home}, sold electricity ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
       + `Compared with what the electricity would have cost without the system: the hourly price plus the grid fee (${s.fee} per kWh). `
       + `The forecast follows the pace of the last ${s.days} days (${s.rate} per day) and does not account for seasons.`
       + estNote('partly estimated', [s.est && `house consumption before ${s.est}`, s.rw && `${s.label} for months without a value`]),
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
   sv: {
-    title: 'Solceller och batteri', paid: 'betalt', of: 'sparat av', paidOff: 'Betalt!',
+    title: 'Återbetalning', paid: 'betalt', of: 'sparat av', paidOff: 'Betalt!',
     payback: 'Betalt ca', years: 'år', early: 'För tidigt för prognos',
-    soFar: 'Hittills', whole: 'Hela vägen', home: 'Sol och batteri i huset', sold: 'Såld el',
+    soFar: 'Hittills', whole: 'Hela vägen', home: 'Egen el i huset', sold: 'Såld el',
     perMonth: 'Sparat per månad', all: n => `Visa alla ${n} månader`, fewer: 'Visa färre', price: 'Inköpspris', loading: 'Väntar på data…',
     missing: 'Hittar inte entiteten', pick: 'Välj sensorn "Sparat hittills" från Solar Payback.',
     add: l => `Lägg till ${l}`, lacks: (l, m) => `${l} för ${m} saknas`, addNow: 'Lägg till',
     month: 'Månad', amount: 'Belopp', exVat: 'exklusive moms', inclVat: 'inklusive moms',
     save: 'Spara', cancel: 'Avbryt', saved: 'Sparat', failed: 'Kunde inte spara', current: v => `Nu: ${v}`,
-    note: (s) => `Hittills: sol och batteri i huset ${s.home}, såld el ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
+    note: (s) => `Hittills: egen el i huset ${s.home}, såld el ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
       + `Jämfört med vad elen hade kostat utan anläggningen: timpriset plus nätavgiften (${s.fee} per kWh). `
       + `Prognosen följer takten de senaste ${s.days} dagarna (${s.rate} per dag) och tar inte hänsyn till årstider.`
       + estNote('delvis uppskattat', [s.est && `husets förbrukning före ${s.est}`, s.rw && `${s.label} för månader utan värde`]),
