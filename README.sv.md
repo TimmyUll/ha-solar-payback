@@ -224,7 +224,7 @@ En gång i timmen läser integrationen Home Assistants långtidsstatistik från 
 
 | Del | Så värderas den |
 |---|---|
-| **Sol och batteri i huset** | El som huset använde men inte köpte från nätet (den kom från solcellerna eller batteriet). Den är värd vad den hade kostat: timpriset plus nätavgiften du slipper. |
+| **Egen el i huset** | El som huset använde men inte köpte från nätet (den kom från solcellerna eller batteriet). Den är värd vad den hade kostat: timpriset plus nätavgiften du slipper. |
 | **Såld el** | Det elbolaget betalade för elen du sålde, plus eventuell ersättning från nätbolaget per såld kWh. |
 | **Månadsersättning** | Pengar en tjänst betalar dig varje månad, t.ex. Tibbers Grid Rewards för att batteriet hjälper elnätet. Du anger den en gång i månaden. |
 
@@ -286,6 +286,7 @@ Du behöver inte ge tillgång till gamla fakturor. Det enda du slår upp för ha
 - **Prognosen känner inte till årstider.** På sommaren ser det snabbare ut, på vintern långsammare. En längre prognosperiod (t.ex. 365 dagar när du har ett års data) jämnar ut det.
 - **Skattereduktion och andra bidrag** per såld kWh kan räknas in i nätersättningen om de gäller dig.
 - **Fasta avgifter** (abonnemang, månadsavgifter) räknas inte med eftersom de inte ändras av anläggningen.
+- **Bara solceller, eller bara batteri?** Båda fungerar. Med bara batteri räknas laddning från nätet som en kostnad till timpriset och användningen som sparat, så resultatet blir vad batteriet tjänar på prisskillnader (minus förlusterna) plus eventuell månadsersättning. Byt gärna kortets rubrik med `title`.
 - **Flera anläggningar eller hus?** Lägg till integrationen en gång per anläggning.
 - **Integritet:** allt räknas lokalt i din Home Assistant. Inget skickas någonstans.
 

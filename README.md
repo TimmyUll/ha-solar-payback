@@ -224,7 +224,7 @@ Once an hour the integration reads Home Assistant's long-term statistics from th
 
 | Part | How it is valued |
 |---|---|
-| **Solar and battery in the house** | Energy the house used but did not buy from the grid (it came from the panels or the battery). It is worth what it would have cost: that hour's price plus the grid fee you avoid. |
+| **Own power used at home** | Energy the house used but did not buy from the grid (it came from the panels or the battery). It is worth what it would have cost: that hour's price plus the grid fee you avoid. |
 | **Sold electricity** | What your supplier paid for the energy you exported, plus any compensation from the grid company per sold kWh. |
 | **Monthly reward** | Money a service pays you each month, for example Tibber Grid Rewards for letting your battery help the grid. You enter it once a month. |
 
@@ -286,6 +286,7 @@ No access to old invoices is needed. The only thing you look up by hand is the m
 - **The forecast doesn't know about seasons.** In summer it looks faster, in winter slower. A longer forecast period (for example 365 days once you have a year of data) evens it out.
 - **Energy tax reductions and other subsidies** per sold kWh can be included in the grid compensation if they apply to you.
 - **Fixed fees** (subscriptions, monthly fees) are not included since they don't change with the system.
+- **Only solar panels, or only a battery?** Both work. With only a battery, charging from the grid counts as a cost at that hour's price and using the battery as a saving, so the result is what the battery earns from price differences (minus its losses) plus any monthly reward. Change the card title with `title` if you like.
 - **Several systems or houses?** Add the integration once per system.
 - **Privacy:** everything is calculated locally in your Home Assistant. Nothing is sent anywhere.
 
