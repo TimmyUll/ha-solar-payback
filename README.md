@@ -210,7 +210,7 @@ entity: sensor.solar_saved_so_far
 | Option | Default | Description |
 |---|---|---|
 | `entity` | | The *Saved so far* sensor (required) |
-| `title` | *Solar and battery* | Title on the card |
+| `title` | *Payback* | Title on the card |
 | `collapsed` | `true` | Start collapsed. Tap the top of the card to show the graph. |
 
 The card follows your theme and is shown in Swedish or English depending on your language.
@@ -286,7 +286,7 @@ No access to old invoices is needed. The only thing you look up by hand is the m
 - **The forecast doesn't know about seasons.** In summer it looks faster, in winter slower. A longer forecast period (for example 365 days once you have a year of data) evens it out.
 - **Energy tax reductions and other subsidies** per sold kWh can be included in the grid compensation if they apply to you.
 - **Fixed fees** (subscriptions, monthly fees) are not included since they don't change with the system.
-- **Only solar panels, or only a battery?** Both work. With only a battery, charging from the grid counts as a cost at that hour's price and using the battery as a saving, so the result is what the battery earns from price differences (minus its losses) plus any monthly reward. Change the card title with `title` if you like.
+- **Only solar panels, or only a battery?** Both work. With only a battery, charging from the grid counts as a cost at that hour's price and using the battery as a saving, so the result is what the battery earns from price differences (minus its losses) plus any monthly reward.
 - **Several systems or houses?** Add the integration once per system.
 - **Privacy:** everything is calculated locally in your Home Assistant. Nothing is sent anywhere.
 

@@ -5,7 +5,7 @@ const C = { home: '#ff7a59', sold: '#7b2cbf', reward: '#1fae7a', line: '#ef4444'
 const estNote = (head, parts) => { const p = parts.filter(Boolean); return p.length ? ` * ${head} (${p.join(', ')}).` : ''; };
 const T = {
   en: {
-    title: 'Solar and battery', paid: 'paid back', of: 'saved of', paidOff: 'Paid off!',
+    title: 'Payback', paid: 'paid back', of: 'saved of', paidOff: 'Paid off!',
     payback: 'Paid back about', years: 'years', early: 'Too early for a forecast',
     soFar: 'So far', whole: 'All the way', home: 'Own power used at home', sold: 'Sold electricity',
     perMonth: 'Saved per month', all: n => `Show all ${n} months`, fewer: 'Show fewer', price: 'Purchase price', loading: 'Waiting for data…',
@@ -20,7 +20,7 @@ const T = {
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
   sv: {
-    title: 'Solceller och batteri', paid: 'betalt', of: 'sparat av', paidOff: 'Betalt!',
+    title: 'Återbetalning', paid: 'betalt', of: 'sparat av', paidOff: 'Betalt!',
     payback: 'Betalt ca', years: 'år', early: 'För tidigt för prognos',
     soFar: 'Hittills', whole: 'Hela vägen', home: 'Egen el i huset', sold: 'Såld el',
     perMonth: 'Sparat per månad', all: n => `Visa alla ${n} månader`, fewer: 'Visa färre', price: 'Inköpspris', loading: 'Väntar på data…',

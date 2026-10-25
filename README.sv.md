@@ -210,7 +210,7 @@ entity: sensor.sol_sparat_hittills
 | Inställning | Standard | Beskrivning |
 |---|---|---|
 | `entity` | | Sensorn *Sparat hittills* (krävs) |
-| `title` | *Solceller och batteri* | Rubrik på kortet |
+| `title` | *Återbetalning* | Rubrik på kortet |
 | `collapsed` | `true` | Börja ihopfällt. Tryck på kortets topp för att visa grafen. |
 
 Kortet följer ditt tema och visas på svenska eller engelska beroende på ditt språk.
@@ -286,7 +286,7 @@ Du behöver inte ge tillgång till gamla fakturor. Det enda du slår upp för ha
 - **Prognosen känner inte till årstider.** På sommaren ser det snabbare ut, på vintern långsammare. En längre prognosperiod (t.ex. 365 dagar när du har ett års data) jämnar ut det.
 - **Skattereduktion och andra bidrag** per såld kWh kan räknas in i nätersättningen om de gäller dig.
 - **Fasta avgifter** (abonnemang, månadsavgifter) räknas inte med eftersom de inte ändras av anläggningen.
-- **Bara solceller, eller bara batteri?** Båda fungerar. Med bara batteri räknas laddning från nätet som en kostnad till timpriset och användningen som sparat, så resultatet blir vad batteriet tjänar på prisskillnader (minus förlusterna) plus eventuell månadsersättning. Byt gärna kortets rubrik med `title`.
+- **Bara solceller, eller bara batteri?** Båda fungerar. Med bara batteri räknas laddning från nätet som en kostnad till timpriset och användningen som sparat, så resultatet blir vad batteriet tjänar på prisskillnader (minus förlusterna) plus eventuell månadsersättning.
 - **Flera anläggningar eller hus?** Lägg till integrationen en gång per anläggning.
 - **Integritet:** allt räknas lokalt i din Home Assistant. Inget skickas någonstans.
 
