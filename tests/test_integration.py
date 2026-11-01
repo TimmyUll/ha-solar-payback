@@ -166,20 +166,25 @@ async def test_sensors_and_reward_service(hass: HomeAssistant) -> None:
     assert hass.states.get("sensor.sol_paid_back") is not None
     assert hass.states.get("binary_sensor.sol_monthly_reward_missing") is not None
 
-    month = dt_util.now().strftime("%Y-%m")
-    await hass.services.async_call(
-        DOMAIN, "set_monthly_reward", {"month": month, "amount": 100}, blocking=True
-    )
+    # The test data starts two days ago, which can be in the previous month.
+    # Give every month a value so the result doesn't depend on today's date
+    # (months without a value would get the latest month's daily rate).
+    months = sorted({dt_util.now().strftime("%Y-%m"), _start_date()[:7]})
+    for month in months:
+        await hass.services.async_call(
+            DOMAIN, "set_monthly_reward", {"month": month, "amount": 100}, blocking=True
+        )
     await hass.async_block_till_done()
     state = hass.states.get("sensor.sol_saved_so_far")
-    assert float(state.state) == pytest.approx(30 * 5.45 + 125, rel=1e-3)
-    assert hass.states.get("sensor.sol_saved_so_far").attributes["rewards"] == {month: 125.0}
+    assert float(state.state) == pytest.approx(30 * 5.45 + 125 * len(months), rel=1e-3)
+    assert state.attributes["rewards"] == dict.fromkeys(months, 125.0)
     rewards = hass.states.get("sensor.sol_monthly_rewards_total")
-    assert float(rewards.state) == pytest.approx(125)
+    assert float(rewards.state) == pytest.approx(125 * len(months))
 
-    await hass.services.async_call(
-        DOMAIN, "remove_monthly_reward", {"month": month}, blocking=True
-    )
+    for month in months:
+        await hass.services.async_call(
+            DOMAIN, "remove_monthly_reward", {"month": month}, blocking=True
+        )
     await hass.async_block_till_done()
     assert float(hass.states.get("sensor.sol_saved_so_far").state) == pytest.approx(30 * 5.45, rel=1e-3)
 
