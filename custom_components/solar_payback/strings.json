@@ -17,11 +17,15 @@
       "source": {
         "title": "Bought and sold electricity",
         "description": "Tibber statistics were found. Use them, or pick your own statistics.",
-        "data": { "source": "Data source" }
+        "data": {
+          "source": "Data source"
+        }
       },
       "tibber": {
         "title": "Tibber home",
-        "data": { "tibber_home": "Home" }
+        "data": {
+          "tibber_home": "Home"
+        }
       },
       "custom": {
         "title": "Bought and sold electricity",
@@ -44,7 +48,11 @@
         "description": "Pick the statistic for everything the house uses (kWh), usually from your inverter. The README explains how to find or create it for different brands.",
         "data": {
           "consumption": "House consumption (kWh)",
+          "production": "Solar production (kWh, optional)",
           "price": "Electricity price sensor (optional backup)"
+        },
+        "data_description": {
+          "production": "Used to show a battery service such as Grid Rewards as a net result: the reward plus the battery's sales minus the grid charging that was sold back. Without it, that charging counts as the house's own cost."
         }
       },
       "fees": {
@@ -86,6 +94,7 @@
           "purchase_price": "Purchase price",
           "start_date": "Start date",
           "consumption": "House consumption (kWh)",
+          "production": "Solar production (kWh, optional)",
           "price": "Electricity price sensor (optional backup)",
           "grid_fee_import": "Grid fee per bought kWh",
           "grid_fee_export": "Grid compensation per sold kWh",
@@ -95,6 +104,9 @@
           "rewards_enabled": "I get a monthly reward (for example Grid Rewards)",
           "reward_label": "Name of the monthly reward",
           "rewards_include_vat": "Monthly rewards are entered including VAT"
+        },
+        "data_description": {
+          "production": "Used to show a battery service such as Grid Rewards as a net result: the reward plus the battery's sales minus the grid charging that was sold back. Without it, that charging counts as the house's own cost."
         }
       }
     }
@@ -109,40 +121,80 @@
   },
   "entity": {
     "sensor": {
-      "saved_total": { "name": "Saved so far" },
-      "paid_back": { "name": "Paid back" },
-      "remaining": { "name": "Remaining" },
-      "payback_date": { "name": "Payback date" },
-      "payback_years": { "name": "Payback time" },
-      "daily_rate": { "name": "Saved per day" },
-      "saved_this_month": { "name": "Saved this month" },
-      "rewards_total": { "name": "Monthly rewards total" }
+      "saved_total": {
+        "name": "Saved so far"
+      },
+      "paid_back": {
+        "name": "Paid back"
+      },
+      "remaining": {
+        "name": "Remaining"
+      },
+      "payback_date": {
+        "name": "Payback date"
+      },
+      "payback_years": {
+        "name": "Payback time"
+      },
+      "daily_rate": {
+        "name": "Saved per day"
+      },
+      "saved_this_month": {
+        "name": "Saved this month"
+      },
+      "rewards_total": {
+        "name": "Monthly rewards total"
+      }
     },
     "binary_sensor": {
-      "reward_missing": { "name": "Monthly reward missing" }
+      "reward_missing": {
+        "name": "Monthly reward missing"
+      }
     }
   },
   "exceptions": {
-    "no_entry": { "message": "No Solar Payback entry found." },
-    "pick_entry": { "message": "There are several Solar Payback entries, pick one." }
+    "no_entry": {
+      "message": "No Solar Payback entry found."
+    },
+    "pick_entry": {
+      "message": "There are several Solar Payback entries, pick one."
+    }
   },
   "services": {
     "set_monthly_reward": {
       "name": "Set monthly reward",
       "description": "Enters a month's reward, for example Tibber Grid Rewards from the invoice or the app.",
       "fields": {
-        "config_entry_id": { "name": "Entry", "description": "Only needed if you have more than one." },
-        "month": { "name": "Month", "description": "Year and month, for example 2026-09." },
-        "amount": { "name": "Amount", "description": "The reward for the month, as a positive number." },
-        "includes_vat": { "name": "Includes VAT", "description": "Leave empty to use the setting of the entry." }
+        "config_entry_id": {
+          "name": "Entry",
+          "description": "Only needed if you have more than one."
+        },
+        "month": {
+          "name": "Month",
+          "description": "Year and month, for example 2026-09."
+        },
+        "amount": {
+          "name": "Amount",
+          "description": "The reward for the month, as a positive number."
+        },
+        "includes_vat": {
+          "name": "Includes VAT",
+          "description": "Leave empty to use the setting of the entry."
+        }
       }
     },
     "remove_monthly_reward": {
       "name": "Remove monthly reward",
       "description": "Removes a month's reward.",
       "fields": {
-        "config_entry_id": { "name": "Entry", "description": "Only needed if you have more than one." },
-        "month": { "name": "Month", "description": "Year and month, for example 2026-09." }
+        "config_entry_id": {
+          "name": "Entry",
+          "description": "Only needed if you have more than one."
+        },
+        "month": {
+          "name": "Month",
+          "description": "Year and month, for example 2026-09."
+        }
       }
     }
   }

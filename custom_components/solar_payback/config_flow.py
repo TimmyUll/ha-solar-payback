@@ -29,6 +29,7 @@ from .const import (
     CONF_MARKUP,
     CONF_NAME,
     CONF_PRICE,
+    CONF_PRODUCTION,
     CONF_PURCHASE_PRICE,
     CONF_REWARD_LABEL,
     CONF_REWARDS_ENABLED,
@@ -133,6 +134,7 @@ def _custom_schema(c: dict[str, Any]) -> vol.Schema:
 def _consumption_schema(c: dict[str, Any], need_price: bool) -> vol.Schema:
     schema: dict[Any, Any] = {
         vol.Required(CONF_CONSUMPTION, default=c.get(CONF_CONSUMPTION, vol.UNDEFINED)): ENERGY_STAT,
+        _optional(CONF_PRODUCTION, c): ENERGY_STAT,
     }
     if need_price:
         schema[_optional(CONF_PRICE, c)] = PRICE_ENTITY
@@ -274,11 +276,13 @@ class SolarPaybackOptionsFlow(OptionsFlow):
         if user_input is not None:
             if c.get(CONF_SOURCE) == SOURCE_TIBBER:
                 user_input.setdefault(CONF_PRICE, None)
+            user_input.setdefault(CONF_PRODUCTION, None)
             return self.async_create_entry(data=user_input)
         schema: dict[Any, Any] = {
             vol.Required(CONF_PURCHASE_PRICE, default=c[CONF_PURCHASE_PRICE]): MONEY,
             vol.Required(CONF_START_DATE, default=c[CONF_START_DATE]): selector.DateSelector(),
             vol.Required(CONF_CONSUMPTION, default=c[CONF_CONSUMPTION]): ENERGY_STAT,
+            _optional(CONF_PRODUCTION, c): ENERGY_STAT,
         }
         if c.get(CONF_SOURCE) == SOURCE_TIBBER:
             schema[_optional(CONF_PRICE, c)] = PRICE_ENTITY

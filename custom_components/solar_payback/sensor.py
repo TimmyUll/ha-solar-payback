@@ -155,7 +155,8 @@ class TotalSensor(PaybackSensor):
         {"days", "months", "purchase_price", "start_date", "daily_rate",
          "payback_date", "reward_label", "grid_fee_import", "forecast_days",
          "estimated_until", "rewards", "rewards_include_vat", "vat_factor",
-         "missing_reward_month", "config_entry_id", "rewards_enabled"}
+         "missing_reward_month", "config_entry_id", "rewards_enabled",
+         "reward_is_net"}
     )
 
     @property
@@ -178,6 +179,8 @@ class TotalSensor(PaybackSensor):
             # For entering monthly rewards from the card
             "config_entry_id": self.coordinator.config_entry.entry_id,
             "rewards_enabled": rewards_on,
+            # The reward includes the battery service's grid charging and battery sales
+            "reward_is_net": self.coordinator.settings.split_battery_service,
             "rewards": dict(sorted(self.coordinator.rewards.items())),
             "rewards_include_vat": c.get(CONF_REWARDS_INCLUDE_VAT, False),
             "vat_factor": c.get(CONF_VAT, DEFAULT_VAT),

@@ -17,11 +17,15 @@
       "source": {
         "title": "Köpt och såld el",
         "description": "Statistik från Tibber hittades. Använd den, eller välj egen statistik.",
-        "data": { "source": "Datakälla" }
+        "data": {
+          "source": "Datakälla"
+        }
       },
       "tibber": {
         "title": "Tibber-hem",
-        "data": { "tibber_home": "Hem" }
+        "data": {
+          "tibber_home": "Hem"
+        }
       },
       "custom": {
         "title": "Köpt och såld el",
@@ -44,7 +48,11 @@
         "description": "Välj statistiken för allt huset förbrukar (kWh), oftast från växelriktaren. README förklarar hur du hittar eller skapar den för olika märken.",
         "data": {
           "consumption": "Husets förbrukning (kWh)",
+          "production": "Solproduktion (kWh, valfri)",
           "price": "Elprissensor (valfri reserv)"
+        },
+        "data_description": {
+          "production": "Används för att visa en batteritjänst som Grid Rewards netto: ersättningen plus batteriets försäljning minus nätladdningen som såldes tillbaka. Utan den räknas laddningen som husets egen kostnad."
         }
       },
       "fees": {
@@ -86,6 +94,7 @@
           "purchase_price": "Köpesumma",
           "start_date": "Startdatum",
           "consumption": "Husets förbrukning (kWh)",
+          "production": "Solproduktion (kWh, valfri)",
           "price": "Elprissensor (valfri reserv)",
           "grid_fee_import": "Nätavgift per köpt kWh",
           "grid_fee_export": "Nätersättning per såld kWh",
@@ -95,6 +104,9 @@
           "rewards_enabled": "Jag får en månadsersättning (t.ex. Grid Rewards)",
           "reward_label": "Namn på månadsersättningen",
           "rewards_include_vat": "Månadsersättningen anges inklusive moms"
+        },
+        "data_description": {
+          "production": "Används för att visa en batteritjänst som Grid Rewards netto: ersättningen plus batteriets försäljning minus nätladdningen som såldes tillbaka. Utan den räknas laddningen som husets egen kostnad."
         }
       }
     }
@@ -109,40 +121,80 @@
   },
   "entity": {
     "sensor": {
-      "saved_total": { "name": "Sparat hittills" },
-      "paid_back": { "name": "Återbetalt" },
-      "remaining": { "name": "Kvar att tjäna in" },
-      "payback_date": { "name": "Återbetalningsdatum" },
-      "payback_years": { "name": "Återbetalningstid" },
-      "daily_rate": { "name": "Sparat per dag" },
-      "saved_this_month": { "name": "Sparat denna månad" },
-      "rewards_total": { "name": "Månadsersättning totalt" }
+      "saved_total": {
+        "name": "Sparat hittills"
+      },
+      "paid_back": {
+        "name": "Återbetalt"
+      },
+      "remaining": {
+        "name": "Kvar att tjäna in"
+      },
+      "payback_date": {
+        "name": "Återbetalningsdatum"
+      },
+      "payback_years": {
+        "name": "Återbetalningstid"
+      },
+      "daily_rate": {
+        "name": "Sparat per dag"
+      },
+      "saved_this_month": {
+        "name": "Sparat denna månad"
+      },
+      "rewards_total": {
+        "name": "Månadsersättning totalt"
+      }
     },
     "binary_sensor": {
-      "reward_missing": { "name": "Månadsersättning saknas" }
+      "reward_missing": {
+        "name": "Månadsersättning saknas"
+      }
     }
   },
   "exceptions": {
-    "no_entry": { "message": "Ingen Solar Payback hittades." },
-    "pick_entry": { "message": "Det finns flera Solar Payback, välj en." }
+    "no_entry": {
+      "message": "Ingen Solar Payback hittades."
+    },
+    "pick_entry": {
+      "message": "Det finns flera Solar Payback, välj en."
+    }
   },
   "services": {
     "set_monthly_reward": {
       "name": "Ange månadsersättning",
       "description": "Anger en månads ersättning, t.ex. Grid Rewards från Tibbers faktura eller app.",
       "fields": {
-        "config_entry_id": { "name": "Post", "description": "Behövs bara om du har flera." },
-        "month": { "name": "Månad", "description": "År och månad, t.ex. 2026-09." },
-        "amount": { "name": "Belopp", "description": "Månadens ersättning, som ett positivt tal." },
-        "includes_vat": { "name": "Inklusive moms", "description": "Lämna tomt för att använda postens inställning." }
+        "config_entry_id": {
+          "name": "Post",
+          "description": "Behövs bara om du har flera."
+        },
+        "month": {
+          "name": "Månad",
+          "description": "År och månad, t.ex. 2026-09."
+        },
+        "amount": {
+          "name": "Belopp",
+          "description": "Månadens ersättning, som ett positivt tal."
+        },
+        "includes_vat": {
+          "name": "Inklusive moms",
+          "description": "Lämna tomt för att använda postens inställning."
+        }
       }
     },
     "remove_monthly_reward": {
       "name": "Ta bort månadsersättning",
       "description": "Tar bort en månads ersättning.",
       "fields": {
-        "config_entry_id": { "name": "Post", "description": "Behövs bara om du har flera." },
-        "month": { "name": "Månad", "description": "År och månad, t.ex. 2026-09." }
+        "config_entry_id": {
+          "name": "Post",
+          "description": "Behövs bara om du har flera."
+        },
+        "month": {
+          "name": "Månad",
+          "description": "År och månad, t.ex. 2026-09."
+        }
       }
     }
   }

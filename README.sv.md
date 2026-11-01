@@ -170,6 +170,10 @@ data:
 
 **Tips för Tibber:** I Tibber-appen under *Rewards* delas Grid Rewards upp mellan husbatteri och elbil. Vill du bara räkna det batteriet tjänar, använd batteriets belopp. Fakturan visar bara totalen.
 
+Tibber-appen visar beloppen **inklusive moms** (*Inkl. skatt*), fakturan utan moms. Slå på *Månadsersättningen anges inklusive moms* om du skriver av från appen, eller dela med 1,25.
+
+**Visa ersättningen netto (valfritt):** en tjänst som Grid Rewards köper också el för att ladda batteriet och säljer batteriel till nätet. Utan mer information räknas den laddningen som husets egen kostnad. Välj statistiken för **solproduktion** (kWh) under **Konfigurera**, så visar kortet ersättningen netto i stället: månadsbeloppet, plus det batteriet sålde till nätet, minus den nätladdning som såldes tillbaka. Nätladdning som huset själv använde ligger kvar under egen el. Totalen blir densamma. Timmar då huset köper mer än det förbrukar räknas som nätladdning, och timmar då det säljer mer än solcellerna producerar räknas som batteriförsäljning.
+
 **Påminnelse:** den binära sensorn *Månadsersättning saknas* slås på när förra månaden saknar värde. En automation som påminner dig den 5:e varje månad (byt entitets-id mot ditt):
 
 ```yaml

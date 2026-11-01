@@ -27,6 +27,7 @@ from .const import (
     CONF_IMPORT_KWH,
     CONF_MARKUP,
     CONF_PRICE,
+    CONF_PRODUCTION,
     CONF_PURCHASE_PRICE,
     CONF_REWARDS_ENABLED,
     CONF_START_DATE,
@@ -98,6 +99,7 @@ class SolarPaybackCoordinator(DataUpdateCoordinator[Result]):
             supplier_markup=float(c.get(CONF_MARKUP, DEFAULT_MARKUP)),
             vat_factor=float(c.get(CONF_VAT, DEFAULT_VAT)),
             forecast_days=int(c.get(CONF_FORECAST_DAYS, DEFAULT_FORECAST_DAYS)),
+            split_battery_service=self.rewards_enabled and bool(c.get(CONF_PRODUCTION)),
         )
 
     async def _async_update_data(self) -> Result:
@@ -115,6 +117,7 @@ class SolarPaybackCoordinator(DataUpdateCoordinator[Result]):
                 CONF_EXPORT_KWH,
                 CONF_EXPORT_REVENUE,
                 CONF_CONSUMPTION,
+                CONF_PRODUCTION,
             )
             if c.get(key)
         }
@@ -136,6 +139,7 @@ class SolarPaybackCoordinator(DataUpdateCoordinator[Result]):
             export_kwh=get(CONF_EXPORT_KWH),
             export_revenue=get(CONF_EXPORT_REVENUE),
             price=means.get(price_id, {}) if price_id else {},
+            production=get(CONF_PRODUCTION),
         )
         if not series.consumption:
             _LOGGER.warning(

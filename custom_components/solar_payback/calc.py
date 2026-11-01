@@ -10,6 +10,15 @@ Everything is valued per hour since the start date:
   compensation per exported kWh.
 * Reward: a monthly amount (for example Tibber Grid Rewards), spread over the
   days of the month. Months without a value use the latest known month.
+
+Battery services (optional, needs the solar production statistic): when a
+service such as Tibber Grid Rewards controls the battery, it buys energy to
+charge it (the house buys more than it uses) and sells battery energy (the
+house sells more than the panels produce). The reward then shows the net
+result of the service: the monthly amount, plus the revenue for the battery
+energy sold, minus the cost of the share of the grid charging that was sold
+back. The rest of the grid charging was used by the house and stays under home.
+The total does not change, only how it is split.
 """
 
 from __future__ import annotations
@@ -30,6 +39,7 @@ class Settings:
     supplier_markup: float = 0.0
     vat_factor: float = 1.25
     forecast_days: int = 60
+    split_battery_service: bool = False
 
 
 @dataclass
@@ -42,6 +52,7 @@ class Series:
     export_kwh: dict[float, float] = field(default_factory=dict)
     export_revenue: dict[float, float] = field(default_factory=dict)
     price: dict[float, float] = field(default_factory=dict)
+    production: dict[float, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -56,6 +67,11 @@ class Day:
     home_estimated: bool = False
     reward_estimated: bool = False
     acc: float = 0.0
+    # Battery service (grid charging and battery export), see the module docstring.
+    charge_kwh: float = 0.0
+    charge_cost: float = 0.0
+    battery_export_kwh: float = 0.0
+    battery_export_revenue: float = 0.0
 
     @property
     def total(self) -> float:
@@ -196,17 +212,28 @@ def calculate(
         if price is None:
             price = last_price if last_price is not None else 0.0
         last_price = price
+        sold_value = 0.0
         if series.export_revenue:
-            d.sold += series.export_revenue.get(ts) or 0.0
+            sold_value += series.export_revenue.get(ts) or 0.0
         elif spot is not None:
-            d.sold += exported * spot
-        d.sold += exported * settings.grid_fee_export
+            sold_value += exported * spot
+        sold_value += exported * settings.grid_fee_export
+        d.sold += sold_value
+        split = settings.split_battery_service and ts in series.production
+        if split and exported > 0:
+            produced = max(0.0, series.production.get(ts) or 0.0)
+            from_battery = max(0.0, exported - produced)
+            d.battery_export_kwh += from_battery
+            d.battery_export_revenue += sold_value * from_battery / exported
         if ts in load:
             d.has_consumption = True
             used = max(0.0, load.get(ts) or 0.0)
             bought_total = bought + gap_kwh
             avg_price = (bought * price + gap_cost) / bought_total if bought_total > 0 else price
             d.home += (used - bought_total) * (avg_price + settings.grid_fee_import)
+            if split and bought_total > used:
+                d.charge_kwh += bought_total - used
+                d.charge_cost += (bought_total - used) * (avg_price + settings.grid_fee_import)
             gap_kwh = gap_cost = 0.0
         elif ts > first_load:
             gap_kwh += bought
@@ -249,6 +276,18 @@ def calculate(
             for x in ds:
                 x.reward = last_rate
                 x.reward_estimated = bool(known)
+
+    # Battery service: move its part from home and sold to the reward, per month
+    # because the battery carries energy from one day to the next.
+    if settings.split_battery_service:
+        for ds in by_month.values():
+            charged = sum(x.charge_kwh for x in ds)
+            exported = sum(x.battery_export_kwh for x in ds)
+            share = min(1.0, exported / charged) if charged > 0 else 0.0
+            for x in ds:
+                x.home += share * x.charge_cost
+                x.sold -= x.battery_export_revenue
+                x.reward += x.battery_export_revenue - share * x.charge_cost
 
     acc = 0.0
     for x in day_list:

@@ -170,6 +170,10 @@ data:
 
 **Tibber tip:** In the Tibber app under *Rewards*, Grid Rewards are split between the home battery and an electric car. If you only want to count what the battery earns, use the battery's amount. The invoice only shows the total.
 
+The Tibber app shows the amounts **including VAT** (*Incl. tax*), the invoice excluding VAT. Turn on *Monthly rewards are entered including VAT* if you copy from the app, or divide by 1.25.
+
+**Show the reward net (optional):** a service like Grid Rewards also buys electricity to charge the battery and sells battery electricity to the grid. Without more information that charging is counted as the house's own cost. Pick your **solar production** statistic (kWh) under **Configure**, and the card shows the reward net instead: the monthly amount, plus what the battery sold to the grid, minus the grid charging that was sold back. Grid charging the house used itself stays under own power. The total is the same either way. Hours where the house buys more than it uses count as grid charging, and hours where it sells more than the panels produce count as battery sales.
+
 **Reminder:** the binary sensor *Monthly reward missing* turns on when last month has no value. An automation that reminds you on the 5th of each month:
 
 ```yaml
