@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 DOMAIN = "solar_payback"
-VERSION = "0.3.2"
+VERSION = "0.4.0"
 
 # Investment
 CONF_NAME = "name"
@@ -21,6 +21,7 @@ CONF_EXPORT_KWH = "export_kwh"
 CONF_EXPORT_REVENUE = "export_revenue"
 CONF_CONSUMPTION = "consumption"
 CONF_PRICE = "price"
+CONF_PRODUCTION = "production"
 
 # Fees and settings
 CONF_GRID_FEE_IMPORT = "grid_fee_import"

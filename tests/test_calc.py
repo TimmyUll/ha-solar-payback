@@ -139,3 +139,64 @@ def test_missing_reward_month() -> None:
     assert missing_reward_month(today, START, {"2026-09": 1.0}) is None
     # Last month is before the start date
     assert missing_reward_month(today, date(2026, 10, 1), {}) is None
+
+
+def _battery_service_series() -> Series:
+    # Hour 2: the service charges 10 kWh from the grid while the house uses 1.
+    # Hour 18: it sells 6 kWh from the battery at night (no solar), house uses 1 from the battery.
+    # Hour 20: the house uses 2 kWh from the battery.
+    return Series(
+        import_kwh={ts(1, 2): 11.0, ts(1, 18): 0.0, ts(1, 20): 0.0},
+        import_cost={ts(1, 2): 11.0},
+        consumption={ts(1, 2): 1.0, ts(1, 18): 1.0, ts(1, 20): 2.0},
+        export_kwh={ts(1, 18): 6.0},
+        export_revenue={ts(1, 18): 12.0},
+        production={ts(1, 2): 0.0, ts(1, 18): 0.0, ts(1, 20): 0.0},
+        price={ts(1, 18): 2.0, ts(1, 20): 2.0},
+    )
+
+
+def test_battery_service_moves_to_reward_and_keeps_total() -> None:
+    now = datetime(2026, 6, 2, 12, tzinfo=UTC)
+    rewards = {"2026-06": 30.0}
+    plain = calculate(settings(grid_fee_import=0.5), _battery_service_series(), rewards, UTC, now)
+    net = calculate(
+        settings(grid_fee_import=0.5, split_battery_service=True),
+        _battery_service_series(),
+        rewards,
+        UTC,
+        now,
+    )
+    assert net.total == pytest.approx(plain.total)
+    d = net.months[0]
+    # 10 kWh charged for 1.5 each, 6 of them sold back -> share 0.6 of 15 = 9.
+    # Battery sold for 12, so the service adds 12 - 9 = 3 on top of the reward.
+    assert d.sold == pytest.approx(0.0)
+    assert d.reward == pytest.approx(30.0 + 3.0)
+    # Home: 3 kWh from the battery worth (2.0 * 1.25 VAT + 0.5) = 3.0 each = 9,
+    # minus the 4 kWh of charging the house used itself (0.4 of 15 = 6).
+    assert d.home == pytest.approx(9.0 - 6.0)
+
+
+def test_battery_service_ignores_solar_export() -> None:
+    series = Series(
+        import_kwh={ts(1, 12): 0.0},
+        consumption={ts(1, 12): 1.0},
+        export_kwh={ts(1, 12): 3.0},
+        export_revenue={ts(1, 12): 3.0},
+        production={ts(1, 12): 4.0},
+    )
+    r = calculate(settings(split_battery_service=True), series, {"2026-06": 0.0}, UTC, datetime(2026, 6, 2, tzinfo=UTC))
+    assert r.days[0].sold == pytest.approx(3.0)
+    assert r.days[0].reward == pytest.approx(0.0)
+
+
+def test_battery_service_needs_production_data_for_the_hour() -> None:
+    s = _battery_service_series()
+    s.production = {}
+    r = calculate(
+        settings(grid_fee_import=0.5, split_battery_service=True), s, {"2026-06": 30.0}, UTC,
+        datetime(2026, 6, 2, 12, tzinfo=UTC),
+    )
+    assert r.months[0].sold == pytest.approx(12.0)
+    assert r.months[0].reward == pytest.approx(30.0)

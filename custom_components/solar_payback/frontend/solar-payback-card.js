@@ -12,9 +12,11 @@ const T = {
     missing: 'Entity not found', pick: 'Pick the "Saved so far" sensor of Solar Payback.',
     add: l => `Add ${l}`, lacks: (l, m) => `${l} for ${m} is missing`, addNow: 'Add',
     month: 'Month', amount: 'Amount', exVat: 'excluding VAT', inclVat: 'including VAT',
-    save: 'Save', cancel: 'Cancel', saved: 'Saved', failed: 'Could not save', current: v => `Now: ${v}`,
+    save: 'Save', cancel: 'Cancel', saving: 'Saving…', saved: 'Saved', failed: 'Could not save', current: v => `Now: ${v}`,
     note: (s) => `So far: own power used at home ${s.home}, sold electricity ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
       + `Compared with what the electricity would have cost without the system: the hourly price plus the grid fee (${s.fee} per kWh). `
+      + (s.net ? `${s.label} is shown net: the reward plus the battery's sales to the grid, minus the grid charging that was sold back. `
+        + `Grid charging the house used itself counts under own power. ` : '')
       + `The forecast follows the pace of the last ${s.days} days (${s.rate} per day) and does not account for seasons.`
       + estNote('partly estimated', [s.est && `house consumption before ${s.est}`, s.rw && `${s.label} for months without a value`]),
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -27,9 +29,11 @@ const T = {
     missing: 'Hittar inte entiteten', pick: 'Välj sensorn "Sparat hittills" från Solar Payback.',
     add: l => `Lägg till ${l}`, lacks: (l, m) => `${l} för ${m} saknas`, addNow: 'Lägg till',
     month: 'Månad', amount: 'Belopp', exVat: 'exklusive moms', inclVat: 'inklusive moms',
-    save: 'Spara', cancel: 'Avbryt', saved: 'Sparat', failed: 'Kunde inte spara', current: v => `Nu: ${v}`,
+    save: 'Spara', cancel: 'Avbryt', saving: 'Sparar…', saved: 'Sparat', failed: 'Kunde inte spara', current: v => `Nu: ${v}`,
     note: (s) => `Hittills: egen el i huset ${s.home}, såld el ${s.sold}${s.rw ? `, ${s.label} ${s.reward}` : ''}. `
       + `Jämfört med vad elen hade kostat utan anläggningen: timpriset plus nätavgiften (${s.fee} per kWh). `
+      + (s.net ? `${s.label} visas netto: ersättningen plus batteriets försäljning till nätet, minus den nätladdning som såldes tillbaka. `
+        + `Nätladdning som huset själv använde räknas under egen el. ` : '')
       + `Prognosen följer takten de senaste ${s.days} dagarna (${s.rate} per dag) och tar inte hänsyn till årstider.`
       + estNote('delvis uppskattat', [s.est && `husets förbrukning före ${s.est}`, s.rw && `${s.label} för månader utan värde`]),
     months: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'],
@@ -275,6 +279,11 @@ class SolarPaybackCard extends HTMLElement {
     const amount = parseFloat(String(this._rwA.value).replace(',', '.'));
     if (!isFinite(amount) || amount < 0) { this._rwA.focus(); return; }
     const t = this._t;
+    const btn = this._card.querySelector('.rw-save');
+    if (btn.disabled) return;
+    // The service recalculates everything before it returns, which can take a few seconds.
+    btn.disabled = true;
+    this._rwMsg.textContent = t.saving;
     try {
       await this._hass.callService('solar_payback', 'set_monthly_reward', {
         config_entry_id: this._attrs.config_entry_id, month: this._rwM.value, amount,
@@ -283,6 +292,8 @@ class SolarPaybackCard extends HTMLElement {
       setTimeout(() => { this._rw.classList.remove('open'); this._rwMsg.textContent = ''; }, 1200);
     } catch (e) {
       this._rwMsg.textContent = `${t.failed}${e && e.message ? `: ${e.message}` : ''}`;
+    } finally {
+      btn.disabled = false;
     }
   }
 
@@ -417,7 +428,7 @@ class SolarPaybackCard extends HTMLElement {
     const estD = a.estimated_until ? new Date(parseDay(a.estimated_until) + DAY) : null;
     this._note.textContent = t.note({
       home: this._money(sum('home')), sold: this._money(sum('sold')), reward: this._money(sum('reward')),
-      label, rw, fee: this._money(Number(a.grid_fee_import) || 0, 4),
+      label, rw, net: rw && a.reward_is_net, fee: this._money(Number(a.grid_fee_import) || 0, 4),
       days: a.forecast_days, rate: this._money(rate),
       est: estD ? estD.toLocaleDateString(lang, { day: 'numeric', month: 'long' }) : null,
     });
